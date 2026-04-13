@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Articule + – Connexion</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body class="login-body">
+
+<!-- BULLES DE FOND -->
+<div class="bg-bubbles" aria-hidden="true">
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span>
+</div>
+
+<div class="login-page-container">
+  <!-- LOGO ou Ttitre -->
+  <div class="login-hero">
+    <div class="logo-wrap">
+      <i class="fa-solid fa-comment-dots" style="color:var(--terra);font-size:3rem;"></i>
+    </div>
+    <h1 class="login-hero-title">Articule +</h1>
+    <p class="login-hero-subtitle">Mieux communiquer, tout en s'amusant.</p>
+  </div>
+
+  <!-- Bords Formulaire -->
+  <div class="login-card main-login-card">
+    <div id="alertBox" class="login-alert" style="display: none;"></div>
+
+    <!-- VUE CONNEXION -->
+    <div id="viewLogin">
+      <h2>Connexion</h2>
+      <form id="loginForm" class="auth-form">
+        <input type="text" id="loginUser" placeholder="Nom d'utilisateur" required autocomplete="off" />
+        <input type="password" id="loginPass" placeholder="Mot de passe" required />
+        <button type="submit" class="btn-primary w-100">Se connecter</button>
+      </form>
+      
+      <div class="login-divider">
+        <span>OU</span>
+      </div>
+
+      <button type="button" class="btn-secondary w-100 mb-2" onclick="Auth.showRegister()">
+        <i class="fa-solid fa-user-plus"></i> Créer un compte
+      </button>
+
+      <button type="button" class="btn-secondary w-100 guest-btn" onclick="Auth.loginAsGuest()">
+        <i class="fa-solid fa-ghost"></i> Continuer en Invité
+      </button>
+    </div>
+
+    <!-- VUE INSCRIPTION -->
+    <div id="viewRegister" style="display: none;">
+      <h2>Créer un compte</h2>
+      <p class="text-muted" style="margin-bottom: 20px;">Rejoignez-nous pour suivre vos progrès</p>
+      <form id="registerForm" class="auth-form">
+        <input type="text" id="regUser" placeholder="Nouveau nom de compte" required autocomplete="off" />
+        <input type="password" id="regPass" placeholder="Nouveau mot de passe" required />
+        <button type="submit" class="btn-primary w-100" style="background: var(--sage); color: white;">S'inscrire</button>
+      </form>
+
+      <div class="login-divider">
+        <span>Prêt ?</span>
+      </div>
+
+      <button type="button" class="btn-secondary w-100" onclick="Auth.showLogin()">
+        <i class="fa-solid fa-arrow-left"></i> Retour à la connexion
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+  window.onload = () => {
+    // Si l'utilisateur est déjà logué, on redirige vers index.html (sauf s'il se déconnecte)
+    if (localStorage.getItem('articule_active_user')) {
+      window.location.href = 'index.html';
+    }
+  }
+</script>
+</body>
+</html>

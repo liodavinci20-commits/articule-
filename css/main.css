@@ -1,0 +1,460 @@
+/* =============================================================
+   MAIN.CSS — Variables, reset, layout, typographie
+============================================================= */
+
+/* ── VARIABLES ──────────────────────────────────────────── */
+:root {
+  /* Palette sobre */
+  --bg:         #F4F1EC;
+  --surface:    #FFFFFF;
+  --surface-2:  #EDE9E1;
+  --border:     #DDD8CF;
+  --border-2:   #CCC8BF;
+
+  /* Texte */
+  --text:       #2A2A2A;
+  --text-muted: #787068;
+  --text-light: #AAA5A0;
+
+  /* Accents discrets */
+  --terra:    #B85C38;   /* terracotta */
+  --sage:     #5C8A6B;   /* vert sauge */
+  --slate:    #4A7BA8;   /* bleu ardoise */
+  --plum:     #6B4E8A;   /* prune */
+  --gold:     #C49A3A;   /* or vieilli */
+
+  /* États */
+  --success:  #4A8A5C;
+  --success-bg: #EFF7F2;
+  --error:    #A84A4A;
+  --error-bg: #FAF0F0;
+  --info:     #4A7BA8;
+  --info-bg:  #EEF4FB;
+
+  /* Ombres */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow:    0 3px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 6px 28px rgba(0,0,0,0.11);
+
+  /* Géométrie */
+  --radius:    14px;
+  --radius-sm: 8px;
+  --radius-lg: 22px;
+  --radius-pill: 50px;
+
+  /* Transitions */
+  --transition: 0.22s ease;
+}
+
+/* ── RESET ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+ul, ol { list-style: none; }
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px 20px 40px;
+}
+
+/* ── TYPOGRAPHIE ─────────────────────────────────────────── */
+h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; line-height: 1.15; }
+h2 { font-size: 1.5rem; font-weight: 700; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+
+.text-muted  { color: var(--text-muted); }
+.text-light  { color: var(--text-light); }
+.text-center { text-align: center; }
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header {
+  text-align: center;
+  padding: 32px 20px 16px;
+  animation: fadeDown 0.6s ease both;
+}
+
+.logo-wrap {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 14px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  box-shadow: var(--shadow);
+  animation: subtleBounce 3s ease infinite;
+}
+
+header h1 {
+  font-family: 'Baloo 2', cursive;
+  color: var(--terra);
+  letter-spacing: -0.5px;
+}
+
+header p {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* ── BARRE DE PROGRESSION ────────────────────────────────── */
+.progress-section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.progress-stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.progress-stars i { font-size: 0.9rem; }
+
+.progress-bar-bg {
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+  height: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sage), var(--slate));
+  border-radius: var(--radius-pill);
+  transition: width 0.8s ease;
+}
+
+.progress-label {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* ── TABS ────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 16px 0;
+  animation: fadeUp 0.6s 0.15s ease both;
+}
+
+.tab-btn {
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  border-color: var(--terra);
+  color: var(--terra);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn.active {
+  background: var(--terra);
+  color: white;
+  border-color: var(--terra);
+  box-shadow: 0 4px 14px rgba(184, 92, 56, 0.28);
+}
+
+.tab-btn[data-tab="respiration"].active { background: var(--slate); border-color: var(--slate); box-shadow: 0 4px 14px rgba(74,123,168,0.28); }
+.tab-btn[data-tab="levres"].active      { background: var(--sage);  border-color: var(--sage);  box-shadow: 0 4px 14px rgba(92,138,107,0.28); }
+.tab-btn[data-tab="jeu"].active         { background: var(--gold);  border-color: var(--gold);  box-shadow: 0 4px 14px rgba(196,154,58,0.28); }
+.tab-btn[data-tab="recompenses"].active { background: var(--plum);  border-color: var(--plum);  box-shadow: 0 4px 14px rgba(107,78,138,0.28); }
+
+/* ── ÉCRANS ──────────────────────────────────────────────── */
+.screen { display: none; }
+.screen.active {
+  display: block;
+  animation: fadeUp 0.4s ease both;
+}
+
+/* ── CARTE ───────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title i { color: var(--terra); font-size: 1rem; }
+
+.card-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+/* ── BANNIÈRE MODULE ──────────────────────────────────────── */
+.module-banner {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  color: white;
+}
+
+.module-banner__icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.module-banner h3 {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.1rem;
+  margin-bottom: 3px;
+}
+
+.module-banner p {
+  font-size: 0.88rem;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+.module-banner--sons       { background: linear-gradient(135deg, #B85C38, #8B3A22); }
+.module-banner--respiration{ background: linear-gradient(135deg, #4A7BA8, #2F5A80); }
+.module-banner--levres     { background: linear-gradient(135deg, #5C8A6B, #3A6A4A); }
+.module-banner--quiz       { background: linear-gradient(135deg, #C49A3A, #9A7420); }
+.module-banner--recompenses{ background: linear-gradient(135deg, #6B4E8A, #4A2E6A); }
+
+/* ── BANDEROLE NAVIGATEUR ────────────────────────────────── */
+#browserBanner {
+  display: none;
+  background: var(--info-bg);
+  border: 1px solid var(--info);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--info);
+}
+
+/* ── BULLES DE FOND ──────────────────────────────────────── */
+.bg-bubbles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-bubbles span {
+  position: absolute;
+  bottom: -80px;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+/* Tailles et positions */
+.bg-bubbles span:nth-child(1)  { left: 5%;  width: 24px; height: 24px; background: rgba(184, 92, 56,  0.45); }
+.bg-bubbles span:nth-child(2)  { left: 18%; width: 36px; height: 36px; background: rgba(74,  123,168, 0.40); }
+.bg-bubbles span:nth-child(3)  { left: 33%; width: 20px; height: 20px; background: rgba(92,  138,107, 0.50); }
+.bg-bubbles span:nth-child(4)  { left: 50%; width: 44px; height: 44px; background: rgba(107, 78, 138, 0.35); }
+.bg-bubbles span:nth-child(5)  { left: 62%; width: 28px; height: 28px; background: rgba(196, 154,58,  0.45); }
+.bg-bubbles span:nth-child(6)  { left: 76%; width: 34px; height: 34px; background: rgba(184, 92, 56,  0.38); }
+.bg-bubbles span:nth-child(7)  { left: 88%; width: 18px; height: 18px; background: rgba(92,  138,107, 0.48); }
+.bg-bubbles span:nth-child(8)  { left: 42%; width: 38px; height: 38px; background: rgba(74,  123,168, 0.38); }
+
+.bg-bubbles span.bubble-rise {
+  animation: rise 2.2s ease-out forwards;
+}
+
+/* ── ECRAN DE CONNEXION ──────────────────────────────────── */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(244, 241, 236, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+.login-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 40px 30px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--terra), var(--gold), var(--sage));
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: var(--surface-2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--terra);
+  box-shadow: var(--shadow-sm);
+}
+
+.login-card h2 {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.8rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.login-card p {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border);
+  background: var(--bg);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 20px;
+  outline: none;
+  transition: all var(--transition);
+}
+
+.login-form input:focus {
+  border-color: var(--sage);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(92, 138, 107, 0.15);
+}
+
+.login-form input::placeholder {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.login-form button {
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-size: 1.1rem;
+}
+
+.app-enter {
+  animation: fadeUp 0.6s ease both;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .wrapper { padding: 12px 14px 32px; }
+  .tabs { gap: 6px; }
+  .tab-btn { padding: 8px 12px; font-size: 0.82rem; }
+  .card { padding: 18px; }
+  h1 { font-size: 1.7rem; }
+}

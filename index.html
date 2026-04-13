@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articule + – Apprendre à Articuler</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+<!-- BULLES DE FOND (animées par le micro uniquement) -->
+<div class="bg-bubbles" aria-hidden="true">
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span>
+</div>
+
+<!-- CONFETTI -->
+<div id="confettiContainer" aria-hidden="true"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============================================================
+     MODALE : EXERCICE PHONÈME
+============================================================= -->
+<div class="modal-overlay" id="phonemeModal" role="dialog" aria-modal="true" aria-labelledby="panelSymbol" aria-hidden="true">
+  <div class="modal">
+    <button class="modal__close" onclick="Sons.closePhonemePanel()" aria-label="Fermer">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+
+    <!-- En-tête -->
+    <div class="modal__header">
+      <div class="modal__symbol" id="panelSymbol">A</div>
+      <div class="modal__example" id="panelExample">ARBRE</div>
+    </div>
+
+    <!-- Diagramme + LSF -->
+    <div class="modal__body">
+      <div class="modal__diagram" id="panelMouth" title="Position des lèvres et de la langue"></div>
+      <div class="modal__lsf-wrap">
+        <div class="modal__lsf" id="panelLSF" title="Signe en Langue des Signes Française"></div>
+        <span class="modal__lsf-label" id="panelLSFLabel">Signe LSF</span>
+      </div>
+    </div>
+
+    <!-- Consigne -->
+    <div class="modal__hint" id="panelHint">
+      Ouvre grand la bouche, langue basse.
+    </div>
+
+    <!-- Feedback reconnaissance -->
+    <div class="phoneme-feedback" id="panelFeedback" aria-live="polite"></div>
+
+    <!-- Bouton marquer manuellement (si reconnaissance échoue) -->
+    <div style="text-align:center; margin-bottom: 12px;">
+      <button class="btn-secondary" id="panelMarkDoneBtn" onclick="Sons.markDoneManually()" style="display:none; font-size:0.82rem;">
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Marquer comme réussi
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="modal__actions">
+      <button class="btn-secondary" onclick="Sons.replaySound()" aria-label="Réécouter le son">
+        <i class="fa-solid fa-volume-high" aria-hidden="true"></i> Réécouter
+      </button>
+      <button class="btn-primary" id="panelRepeatBtn" onclick="Sons.startRepeat()" aria-label="Répéter le son">
+        <i class="fa-solid fa-microphone" aria-hidden="true"></i> Je répète !
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONTENU PRINCIPAL
+============================================================= -->
+<div class="wrapper" id="mainAppWrapper">
+
+  <!-- HEADER -->
+  <header style="position: relative;">
+    <button id="logoutBtn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.5rem; color: var(--error); cursor: pointer; transition: transform 0.2s;" title="Se déconnecter" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+      <i class="fa-solid fa-power-off"></i>
+    </button>
+    <div class="logo-wrap" aria-hidden="true">
+      <i class="fa-solid fa-comment-dots" style="color:var(--terra);font-size:2rem;"></i>
+    </div>
+    <h1>Articule +</h1>
+    <p id="appGreetingText">J'apprends à articuler en m'amusant !</p>
+  </header>
+
+  <!-- BANNIÈRE NAVIGATEUR -->
+  <div id="browserBanner" role="alert">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <span>La reconnaissance vocale nécessite <strong>Google Chrome</strong> ou <strong>Microsoft Edge</strong>. Les autres fonctionnalités restent disponibles.</span>
+  </div>
+
+  <!-- PROGRESSION -->
+  <div class="progress-section" aria-label="Ma progression">
+    <div class="progress-header">
+      <span><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Ma progression</span>
+      <div class="progress-stars">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+        <span id="starsCount" aria-label="étoiles gagnées">0</span>
+      </div>
+    </div>
+    <div class="progress-bar-bg" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="progression globale">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+    </div>
+    <p class="progress-label"><span id="progressText">0</span>% accompli</p>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="tabs" role="tablist" aria-label="Modules">
+    <button class="tab-btn active" data-tab="sons" role="tab" aria-selected="true" aria-controls="screen-sons"
+            onclick="switchTab('sons', this)">
+      <i class="fa-solid fa-comment" aria-hidden="true"></i> Sons
+    </button>
+    <button class="tab-btn" data-tab="respiration" role="tab" aria-selected="false" aria-controls="screen-respiration"
+            onclick="switchTab('respiration', this)">
+      <i class="fa-solid fa-wind" aria-hidden="true"></i> Respiration
+    </button>
+    <button class="tab-btn" data-tab="levres" role="tab" aria-selected="false" aria-controls="screen-levres"
+            onclick="switchTab('levres', this)">
+      <i class="fa-solid fa-eye" aria-hidden="true"></i> Lecture labiale
+    </button>
+    <button class="tab-btn" data-tab="jeu" role="tab" aria-selected="false" aria-controls="screen-jeu"
+            onclick="switchTab('jeu', this)">
+      <i class="fa-solid fa-gamepad" aria-hidden="true"></i> Quiz
+    </button>
+    <button class="tab-btn" data-tab="recompenses" role="tab" aria-selected="false" aria-controls="screen-recompenses"
+            onclick="switchTab('recompenses', this)">
+      <i class="fa-solid fa-trophy" aria-hidden="true"></i> Récompenses
+    </button>
+  </nav>
+
+  <!-- ============================================================
+       ÉCRAN : SONS
+  ============================================================= -->
+  <div class="screen active" id="screen-sons" role="tabpanel" aria-labelledby="tab-sons">
+    <div class="module-banner module-banner--sons">
+      <div class="module-banner__icon"><i class="fa-solid fa-comment" aria-hidden="true"></i></div>
+      <div>
+        <h3>Module 1 — Les Sons</h3>
+        <p>Clique sur un son : écoute, puis répète ! Le micro te corrigera en temps réel.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-volume-high" aria-hidden="true"></i> Les Voyelles
+      </div>
+      <div class="card-subtitle">Les sons fondamentaux — commence par ici !</div>
+      <div class="phoneme-grid" id="voyellesGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-comment" aria-hidden="true"></i> Les Consonnes
+      </div>
+      <div class="card-subtitle">Classées par type de production — observe ta bouche !</div>
+      <div id="consonnesContainer"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ÉCRAN : RESPIRATION
+  ============================================================= -->
+  <div class="screen" id="screen-respiration" role="tabpanel">
+    <div class="module-banner module-banner--respiration">
+      <div class="module-banner__icon"><i class="fa-solid fa-wind" aria-hidden="true"></i></div>
+      <div>
+        <h3>Module 2 — Respiration</h3>
+        <p>Une bonne respiration est la base de l'articulation. Suis le cercle !</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-lungs" aria-hidden="true"></i> Exercice de Respiration
+      </div>
+      <div class="card-subtitle">Inspire, tiens, expire — 5 cycles pour gagner 15 étoiles</div>
+
+      <div class="breathing-container">
+        <div class="breath-circle" id="breathCircle" onclick="Respiration.start()" role="button" aria-label="Démarrer l'exercice de respiration" tabindex="0">
+          <i class="fa-solid fa-play" id="breathIcon" aria-hidden="true"></i>
+          <span>COMMENCER</span>
+        </div>
+
+        <div class="breath-count" id="breathCount" aria-live="polite" aria-label="Compte à rebours"></div>
+        <div class="breath-label" id="breathLabel">Clique pour commencer !</div>
+
+        <div class="breath-steps" role="group" aria-label="Phases de respiration">
+          <div class="breath-step-pill" id="step-inhale">INSPIRER 4s</div>
+          <div class="breath-step-pill" id="step-hold">TENIR 2s</div>
+          <div class="breath-step-pill" id="step-exhale">EXPIRER 4s</div>
+        </div>
+
+        <p class="text-muted" style="margin-top:12px; font-size:0.85rem; font-weight:700;">
+          Cycles : <strong id="breathCycles">0</strong> / 5
+        </p>
+
+        <div class="breathing-controls">
+          <button class="btn-secondary" id="musicToggleBtn" onclick="Respiration.toggleMusic()" aria-label="Activer ou désactiver la musique">
+            <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i> Musique OFF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Pourquoi respirer ?
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div style="background:var(--surface-2); border-radius:var(--radius-sm); padding:14px; text-align:center; border:1px solid var(--border);">
+          <i class="fa-solid fa-music" style="font-size:1.6rem; color:var(--sage); margin-bottom:8px; display:block;"></i>
+          <p style="font-weight:700; font-size:0.85rem;">Contrôle du souffle</p>
+        </div>
+        <div style="background:var(--surface-2); border-radius:var(--radius-sm); padding:14px; text-align:center; border:1px solid var(--border);">
+          <i class="fa-solid fa-face-smile" style="font-size:1.6rem; color:var(--slate); margin-bottom:8px; display:block;"></i>
+          <p style="font-weight:700; font-size:0.85rem;">Se calmer et se concentrer</p>
+        </div>
+        <div style="background:var(--surface-2); border-radius:var(--radius-sm); padding:14px; text-align:center; border:1px solid var(--border);">
+          <i class="fa-solid fa-dumbbell" style="font-size:1.6rem; color:var(--terra); margin-bottom:8px; display:block;"></i>
+          <p style="font-weight:700; font-size:0.85rem;">Renforcer la voix</p>
+        </div>
+        <div style="background:var(--surface-2); border-radius:var(--radius-sm); padding:14px; text-align:center; border:1px solid var(--border);">
+          <i class="fa-solid fa-brain" style="font-size:1.6rem; color:var(--plum); margin-bottom:8px; display:block;"></i>
+          <p style="font-weight:700; font-size:0.85rem;">Mieux articuler</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ÉCRAN : LECTURE LABIALE
+  ============================================================= -->
+  <div class="screen" id="screen-levres" role="tabpanel">
+    <div class="module-banner module-banner--levres">
+      <div class="module-banner__icon"><i class="fa-solid fa-eye" aria-hidden="true"></i></div>
+      <div>
+        <h3>Module 3 — Lecture Labiale</h3>
+        <p>Clique : écoute la syllabe ou le mot, puis répète-le !</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-spell-check" aria-hidden="true"></i> Les Syllabes
+      </div>
+      <div class="card-subtitle">Commence par les syllabes de base avant les mots</div>
+      <div id="syllabesContainer"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-comment-dots" aria-hidden="true"></i> Les Mots
+      </div>
+      <div class="card-subtitle">Des mots du quotidien pour pratiquer</div>
+      <div id="motsContainer"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ÉCRAN : QUIZ
+  ============================================================= -->
+  <div class="screen" id="screen-jeu" role="tabpanel">
+    <div class="module-banner module-banner--quiz">
+      <div class="module-banner__icon"><i class="fa-solid fa-gamepad" aria-hidden="true"></i></div>
+      <div>
+        <h3>Module 4 — Quiz</h3>
+        <p>Teste tes connaissances ! Tu peux naviguer avant et arrière.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="quizContainer">
+        <!-- Score -->
+        <div class="quiz-score-bar">
+          <span>Question <span id="qNum">1</span> / <span id="qTotal">8</span></span>
+          <span>Score : <span id="qScore">0</span> <i class="fa-solid fa-check" aria-hidden="true"></i></span>
+        </div>
+        <!-- Diagramme de bouche (optionnel par question) -->
+        <div id="qImg" class="quiz-question-img" aria-hidden="true"></div>
+        <!-- Question -->
+        <p class="quiz-question-text" id="qText"></p>
+        <!-- Options -->
+        <div class="quiz-options" id="qOptions" role="group" aria-label="Choix de réponse"></div>
+        <!-- Feedback -->
+        <div class="quiz-feedback" id="qFeedback" aria-live="polite"></div>
+        <!-- Navigation -->
+        <div class="quiz-nav">
+          <button class="btn-secondary" id="prevBtn" onclick="Quiz.prev()" disabled aria-label="Question précédente">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Précédente
+          </button>
+          <button class="btn-primary btn--hidden" id="nextBtn" onclick="Quiz.next()">
+            Question suivante <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ÉCRAN : RÉCOMPENSES
+  ============================================================= -->
+  <div class="screen" id="screen-recompenses" role="tabpanel">
+    <div class="module-banner module-banner--recompenses">
+      <div class="module-banner__icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></div>
+      <div>
+        <h3>Mes Récompenses</h3>
+        <p>Chaque effort mérite une récompense — continue comme ça !</p>
+      </div>
+    </div>
+
+    <!-- Étoiles -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-star" aria-hidden="true"></i> Mes Étoiles
+      </div>
+      <div class="stars-display">
+        <div class="stars-total" id="totalStarsDisplay">0</div>
+        <p class="stars-label">étoiles gagnées</p>
+        <div class="stars-goal">
+          <p id="starsNextGift">100 étoiles avant le prochain badge !</p>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="starsProgressFill" style="width:0%; background:linear-gradient(90deg,var(--gold),var(--terra));"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-award" aria-hidden="true"></i> Mes Badges
+      </div>
+      <div class="card-subtitle">Complète des activités pour débloquer de nouveaux badges !</div>
+      <div class="badges-grid" id="badgesGrid"></div>
+    </div>
+
+    <!-- Journal -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i> Mon Journal
+      </div>
+      <div id="journalLog"></div>
+    </div>
+  </div>
+
+</div><!-- end wrapper -->
+
+<!-- ============================================================
+     SCRIPTS (ordre important : dépendances d'abord)
+============================================================= -->
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/sons.js"></script>
+<script src="js/respiration.js"></script>
+<script src="js/labiale.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/recompenses.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
