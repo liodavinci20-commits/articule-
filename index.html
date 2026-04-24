@@ -86,9 +86,13 @@
 
   <!-- HEADER -->
   <header style="position: relative;">
-    <button id="logoutBtn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.5rem; color: var(--error); cursor: pointer; transition: transform 0.2s;" title="Se déconnecter" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-      <i class="fa-solid fa-power-off"></i>
-    </button>
+    <div class="user-pill" id="userPill" style="display:none;">
+      <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+      <span id="userPillName">—</span>
+      <button class="user-pill__logout" id="logoutBtn" title="Se déconnecter" aria-label="Se déconnecter">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+      </button>
+    </div>
     <div class="logo-wrap" aria-hidden="true">
       <i class="fa-solid fa-comment-dots" style="color:var(--terra);font-size:2rem;"></i>
     </div>
@@ -354,13 +358,51 @@
       </div>
       <div id="journalLog"></div>
     </div>
+
+    <!-- Compte -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-circle-user" aria-hidden="true"></i> Mon Compte
+      </div>
+      <div class="account-actions">
+        <button class="btn-secondary w-full-btn" onclick="App.showResetConfirm()">
+          <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Réinitialiser la session
+        </button>
+        <button class="btn-secondary w-full-btn account-logout" onclick="App.logout()">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Se déconnecter
+        </button>
+      </div>
+    </div>
+
   </div>
 
 </div><!-- end wrapper -->
 
+<!-- MODALE CONFIRMATION RESET -->
+<div class="confirm-overlay" id="resetConfirmModal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="confirm-box">
+    <div class="confirm-icon">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    </div>
+    <h3 class="confirm-title">Réinitialiser la session ?</h3>
+    <p class="confirm-msg">Toute ta progression sera effacée (étoiles, badges, activités) et tu seras déconnecté(e). Cette action est irréversible.</p>
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="App.hideResetConfirm()">Annuler</button>
+      <button class="btn-primary confirm-danger" onclick="App.confirmReset()">
+        <i class="fa-solid fa-trash" aria-hidden="true"></i> Tout effacer
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ============================================================
      SCRIPTS (ordre important : dépendances d'abord)
 ============================================================= -->
+<!-- ResponsiveVoice : TTS français de qualité (é, è, ê, ô...) -->
+<!-- Fallback automatique sur SpeechSynthesis natif si hors ligne -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase.js"></script>
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=FREE"></script>
 <script src="js/data.js"></script>
 <script src="js/state.js"></script>
 <script src="js/utils.js"></script>

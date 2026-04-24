@@ -185,9 +185,21 @@
   border: 1px solid var(--border);
 }
 
-.modal__diagram svg {
+.modal__diagram svg,
+.modal__diagram img {
   width: 100%;
   height: auto;
+  display: block;
+  border-radius: calc(var(--radius) - 4px);
+}
+
+/* Image de position de bouche (modale + quiz) */
+.mouth-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: calc(var(--radius) - 4px);
+  object-fit: contain;
 }
 
 .modal__lsf-wrap {
@@ -208,6 +220,15 @@
 .modal__lsf svg {
   width: 80px;
   height: 100px;
+}
+
+.modal__lsf img,
+.lsf-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: calc(var(--radius) - 4px);
+  object-fit: contain;
 }
 
 .modal__lsf-label {
@@ -480,18 +501,50 @@
 
 .labiale-card__actions {
   margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.labiale-card__play {
+.labiale-card__play,
+.labiale-card__mic {
   background: none;
   border: none;
   color: var(--text-light);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: color var(--transition);
+  transition: color var(--transition), transform var(--transition);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
-.labiale-card__play:hover { color: var(--sage); }
+.labiale-card__play:hover  { color: var(--sage);  transform: scale(1.15); }
+.labiale-card__mic:hover   { color: var(--terra); transform: scale(1.15); }
+
+/* Micro actif pendant l'écoute */
+.labiale-card--listening .labiale-card__mic {
+  color: var(--terra);
+}
+
+/* Bouton de validation manuelle — apparaît 10s après un échec de reconnaissance */
+.labiale-card__manual {
+  background: var(--success-bg);
+  border: 1.5px solid var(--success);
+  border-radius: var(--radius-sm);
+  color: var(--success);
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: all var(--transition);
+  animation: fadeIn 0.2s ease;
+}
+
+.labiale-card__manual:hover {
+  background: var(--success);
+  color: white;
+  transform: scale(1.05);
+}
 
 .labiale-card__check {
   position: absolute;
@@ -538,6 +591,14 @@
   border: 1px solid var(--border);
   background: var(--surface-2);
   padding: 8px;
+}
+
+.quiz-question-img img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: calc(var(--radius) - 4px);
+  object-fit: contain;
 }
 
 .quiz-question-text {
@@ -786,4 +847,135 @@
   .modal__body { grid-template-columns: 1fr; }
   .badges-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
   .labiale-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+}
+
+/* ── PILLULE UTILISATEUR (header) ────────────────────────── */
+.user-pill {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 5px 8px 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  max-width: calc(100% - 28px);
+  overflow: hidden;
+}
+
+.user-pill > i { color: var(--slate); flex-shrink: 0; }
+
+.user-pill > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+.user-pill__logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--error);
+  font-size: 0.95rem;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.user-pill__logout:hover { background: var(--error-bg); }
+
+/* ── ACTIONS COMPTE (récompenses) ────────────────────────── */
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.w-full-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.account-logout {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.account-logout:hover {
+  background: var(--error-bg);
+  color: var(--error);
+  border-color: var(--error);
+}
+
+/* ── MODALE CONFIRMATION ─────────────────────────────────── */
+.confirm-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 900;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.confirm-overlay.open { display: flex; }
+
+.confirm-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px 28px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.confirm-icon {
+  font-size: 2.5rem;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+
+.confirm-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.confirm-msg {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-danger {
+  background: var(--error);
+  box-shadow: 0 4px 14px rgba(168,74,74,0.25);
+}
+
+.confirm-danger:hover {
+  background: #8B3A3A;
+  box-shadow: 0 6px 20px rgba(168,74,74,0.35);
 }

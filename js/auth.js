@@ -1,98 +1,168 @@
 /* =============================================================
-   AUTH.JS — Logique de connexion et d'inscription
+   AUTH.JS — Connexion / Inscription via Supabase Auth
 ============================================================= */
 
 const Auth = {
-  // Elements DOM
-  vLogin: null,
-  vRegister: null,
-  loginForm: null,
+  vLogin:       null,
+  vRegister:    null,
+  loginForm:    null,
   registerForm: null,
-  alertBox: null,
+  alertBox:     null,
 
   init() {
-    this.vLogin = document.getElementById('viewLogin');
-    this.vRegister = document.getElementById('viewRegister');
-    this.loginForm = document.getElementById('loginForm');
+    this.vLogin       = document.getElementById('viewLogin');
+    this.vRegister    = document.getElementById('viewRegister');
+    this.loginForm    = document.getElementById('loginForm');
     this.registerForm = document.getElementById('registerForm');
-    this.alertBox = document.getElementById('alertBox');
+    this.alertBox     = document.getElementById('alertBox');
 
-    if (this.loginForm) {
-      this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
-    }
-    
-    if (this.registerForm) {
-      this.registerForm.addEventListener('submit', (e) => this.handleRegister(e));
-    }
-
-    // Initialize mock DB
-    if (!localStorage.getItem('articule_users_db')) {
-      localStorage.setItem('articule_users_db', JSON.stringify([]));
-    }
+    if (this.loginForm)    this.loginForm.addEventListener('submit',    e => this.handleLogin(e));
+    if (this.registerForm) this.registerForm.addEventListener('submit', e => this.handleRegister(e));
   },
 
+  // ── Affichage d'erreur ────────────────────────────────────
   showError(msg) {
-    this.alertBox.style.display = 'block';
-    this.alertBox.textContent = msg;
-    setTimeout(() => this.alertBox.style.display = 'none', 3000);
+    if (!this.alertBox) return;
+    this.alertBox.innerHTML   = '<i class="fa-solid fa-circle-exclamation"></i> ' + msg;
+    this.alertBox.className   = 'login-alert';
+    this.alertBox.style.display = 'flex';
+    this.alertBox.style.animation = 'none';
+    void this.alertBox.offsetWidth;
+    this.alertBox.style.animation = 'shake 0.4s ease';
+    clearTimeout(this._alertTimer);
+    this._alertTimer = setTimeout(() => {
+      if (this.alertBox) this.alertBox.style.display = 'none';
+    }, 5000);
+  },
+
+  // ── Affichage de succès ───────────────────────────────────
+  showSuccess(msg) {
+    if (!this.alertBox) return;
+    this.alertBox.innerHTML   = '<i class="fa-solid fa-circle-check"></i> ' + msg;
+    this.alertBox.className   = 'login-alert login-alert--success';
+    this.alertBox.style.display = 'flex';
+    this.alertBox.style.animation = 'none';
+    void this.alertBox.offsetWidth;
+    this.alertBox.style.animation = 'fadeUp 0.35s ease';
   },
 
   showLogin() {
     this.vRegister.style.display = 'none';
-    this.vLogin.style.display = 'block';
+    this.vLogin.style.display    = 'block';
+    if (this.alertBox) this.alertBox.style.display = 'none';
   },
 
   showRegister() {
-    this.vLogin.style.display = 'none';
+    this.vLogin.style.display    = 'none';
     this.vRegister.style.display = 'block';
+    if (this.alertBox) this.alertBox.style.display = 'none';
   },
 
-  handleLogin(e) {
+  _setLoading(on) {
+    document.querySelectorAll('.btn-submit').forEach(b => {
+      b.disabled      = on;
+      b.style.opacity = on ? '0.65' : '1';
+    });
+  },
+
+  // ── Connexion ─────────────────────────────────────────────
+  async handleLogin(e) {
     e.preventDefault();
-    const user = document.getElementById('loginUser').value.trim();
-    const pass = document.getElementById('loginPass').value;
+    const email = document.getElementById('loginUser').value.trim();
+    const pass  = document.getElementById('loginPass').value;
 
-    const db = JSON.parse(localStorage.getItem('articule_users_db') || '[]');
-    const found = db.find(u => u.username.toLowerCase() === user.toLowerCase() && u.password === pass);
+    if (!email || !pass) return this.showError('Remplis tous les champs.');
 
-    if (found) {
-      localStorage.setItem('articule_active_user', found.username);
-      window.location.href = 'index.html';
+    this._setLoading(true);
+    const { error } = await DB.auth.signInWithPassword({ email, password: pass });
+    this._setLoading(false);
+
+    if (error) {
+      this.showError('Email ou mot de passe incorrect.');
     } else {
-      this.showError('Identifiants incorrects');
+      this.showSuccess('Connexion réussie !');
+      sessionStorage.setItem('welcome_msg', 'connexion');
+      setTimeout(() => { window.location.href = 'index.html'; }, 900);
     }
   },
 
-  handleRegister(e) {
+  // ── Inscription ───────────────────────────────────────────
+  async handleRegister(e) {
     e.preventDefault();
-    const user = document.getElementById('regUser').value.trim();
-    const pass = document.getElementById('regPass').value;
+    const prenom = document.getElementById('regPrenom').value.trim();
+    const email  = document.getElementById('regEmail').value.trim();
+    const pass   = document.getElementById('regPass').value;
+    const pass2  = document.getElementById('regPass2').value;
 
-    if (user.length < 3) {
-      return this.showError('Le nom doit faire au moins 3 caractères');
+    if (prenom.length < 2)        return this.showError('Le prénom doit faire au moins 2 caractères.');
+    if (!this._validEmail(email)) return this.showError('Adresse email invalide.');
+    if (pass.length < 4)          return this.showError('Le mot de passe doit faire au moins 4 caractères.');
+    if (pass !== pass2)           return this.showError('Les mots de passe ne correspondent pas.');
+
+    this._setLoading(true);
+
+    // 1. Créer le compte Supabase Auth
+    const { data, error } = await DB.auth.signUp({ email, password: pass });
+
+    if (error) {
+      this._setLoading(false);
+      if (error.message.toLowerCase().includes('already')) {
+        return this.showError('Cette adresse email est déjà utilisée.');
+      }
+      return this.showError('Erreur : ' + error.message);
     }
 
-    const db = JSON.parse(localStorage.getItem('articule_users_db') || '[]');
-    
-    // Check if user exists
-    if (db.some(u => u.username.toLowerCase() === user.toLowerCase())) {
-      return this.showError('Ce nom est déjà utilisé');
+    // 2. Insérer le profil avec le prénom
+    if (data.user) {
+      const { error: profErr } = await DB.from('profiles').insert({
+        id:     data.user.id,
+        prenom: prenom
+      });
+      if (profErr) console.warn('Profil non créé :', profErr.message);
     }
 
-    db.push({ username: user, password: pass });
-    localStorage.setItem('articule_users_db', JSON.stringify(db));
-    
-    // Auto-login after register
-    localStorage.setItem('articule_active_user', user);
-    window.location.href = 'index.html';
+    this._setLoading(false);
+    this.showSuccess('Compte créé avec succès !');
+    sessionStorage.setItem('welcome_msg', 'inscription');
+    setTimeout(() => { window.location.href = 'index.html'; }, 900);
   },
 
+  // ── Mode invité (pas de compte) ───────────────────────────
   loginAsGuest() {
     localStorage.setItem('articule_active_user', 'guest');
+    localStorage.removeItem('sonobulle_v2');
     window.location.href = 'index.html';
+  },
+
+  // ── Utilitaires ───────────────────────────────────────────
+  togglePass(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    const icon = btn.querySelector('i');
+    if (icon) icon.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+  },
+
+  checkPassMatch() {
+    const p1  = document.getElementById('regPass');
+    const p2  = document.getElementById('regPass2');
+    const msg = document.getElementById('passMatchMsg');
+    if (!p1 || !p2 || !msg) return;
+    if (!p2.value) { msg.style.display = 'none'; return; }
+    msg.style.display = 'flex';
+    if (p1.value === p2.value) {
+      msg.textContent = '✓ Les mots de passe correspondent';
+      msg.className   = 'pass-match-msg ok';
+    } else {
+      msg.textContent = '✗ Les mots de passe ne correspondent pas';
+      msg.className   = 'pass-match-msg bad';
+    }
+  },
+
+  _validEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  Auth.init();
-});
+window.addEventListener('DOMContentLoaded', () => Auth.init());
