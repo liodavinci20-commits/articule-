@@ -979,3 +979,158 @@
   background: #8B3A3A;
   box-shadow: 0 6px 20px rgba(168,74,74,0.35);
 }
+
+/* ── ZONE TRANSCRIPT — ce que l'enfant a dit ────────────── */
+.transcript-zone {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin: 10px 0 6px;
+  text-align: center;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  background: var(--surface-2);
+}
+.transcript-zone__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 6px;
+}
+.transcript-zone__text {
+  font-family: 'Baloo 2', cursive;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  min-height: 1.1em;
+  word-break: break-word;
+}
+
+/* États */
+.transcript-zone--idle .transcript-zone__text  { color: var(--border); }
+
+.transcript-zone--listening                     { border-color: var(--slate); background: rgba(74,123,168,0.06); }
+.transcript-zone--listening .transcript-zone__label { color: var(--slate); }
+.transcript-zone--listening .transcript-zone__text  { color: var(--text); font-style: italic; }
+
+.transcript-zone--success                       { border-color: var(--sage); background: rgba(92,138,107,0.09); }
+.transcript-zone--success .transcript-zone__label  { color: var(--sage); }
+.transcript-zone--success .transcript-zone__text   { color: var(--sage); }
+
+.transcript-zone--error                         { border-color: var(--terra); background: rgba(184,92,56,0.07); }
+.transcript-zone--error .transcript-zone__label    { color: var(--terra); }
+.transcript-zone--error .transcript-zone__text     { color: var(--terra); }
+
+/* ── BOUTON STOP (pendant l'enregistrement) ─────────────── */
+.btn-stop {
+  background: var(--plum) !important;
+  box-shadow: 0 4px 14px rgba(107,78,138,0.3) !important;
+}
+.btn-stop:hover {
+  background: #5A3E7A !important;
+}
+
+/* ── ZONE D'ENREGISTREMENT LECTURE LABIALE ───────────────── */
+.labiale-recording-zone {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px 12px;
+  margin-bottom: 14px;
+}
+.labiale-recording-zone .transcript-zone {
+  margin: 8px 0 6px;
+}
+.labiale-recording-zone__target {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.labiale-recording-zone__target strong {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-left: 8px;
+  letter-spacing: 0.04em;
+}
+
+/* Bouton micro de carte labiale en mode "stop" */
+.labiale-card__mic--stop {
+  background: var(--plum) !important;
+  color: white !important;
+  border-color: var(--plum) !important;
+}
+
+/* ── RESPONSIVE COMPOSANTS ───────────────────────────────── */
+
+@media (max-width: 600px) {
+  /* Modal : glisse depuis le bas sur mobile */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 22px 18px 20px;
+    max-height: 94vh;
+    width: 100%;
+  }
+
+  /* Grilles phonèmes et labiales */
+  .phoneme-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+  .labiale-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+
+  /* Breathing */
+  .breath-circle { width: 155px; height: 155px; }
+  .breath-steps  { gap: 6px; }
+  .breath-step-pill { font-size: 0.72rem; padding: 5px 10px; }
+
+  /* Quiz */
+  .quiz-options { grid-template-columns: 1fr; }
+  .quiz-option  { padding: 12px 14px; font-size: 0.9rem; }
+
+  /* Badges */
+  .badges-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+
+  /* Boutons */
+  .btn-primary   { padding: 10px 18px; font-size: 0.88rem; }
+  .btn-secondary { padding: 8px 14px;  font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  /* Modal body : diagramme + LSF empilés */
+  .modal__body { grid-template-columns: 1fr; gap: 10px; }
+  .modal__symbol { font-size: 2.8rem; }
+
+  /* Actions modale en colonne */
+  .modal__actions { flex-direction: column; align-items: stretch; }
+  .modal__actions .btn-primary,
+  .modal__actions .btn-secondary { justify-content: center; }
+
+  /* Breathing steps en colonne */
+  .breath-steps { flex-direction: column; align-items: center; }
+  .breath-circle { width: 140px; height: 140px; }
+
+  /* Phonème card */
+  .phoneme-card__symbol { font-size: 1.6rem; }
+  .phoneme-card { padding: 12px 6px; }
+
+  /* Labiale card */
+  .labiale-card__text { font-size: 0.88rem; }
+
+  /* Compte (récompenses) */
+  .account-actions { flex-direction: column; }
+  .w-full-btn { width: 100%; justify-content: center; }
+
+  /* Confirm modale */
+  .confirm-box { padding: 24px 18px; margin: 0 10px; }
+}

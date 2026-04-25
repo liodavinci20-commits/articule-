@@ -143,6 +143,101 @@ const Utils = (() => {
     _micCtx = _micAnalyser = _micStream = _micRAF = null;
   }
 
+  // ── VISUALISEUR D'ONDE (canvas temps réel) ────────────────
+  let _waveRAF    = null;
+  let _waveCanvas = null;
+
+  function startWaveform(canvas) {
+    stopWaveform();
+    if (!canvas) return;
+    _waveCanvas = canvas;
+
+    const ctx  = canvas.getContext('2d');
+    let lastW  = 0;
+    let lastH  = 0;
+
+    function draw() {
+      _waveRAF = requestAnimationFrame(draw);
+
+      // Relire les dimensions à chaque frame : gère le resize et le layout différé
+      const dpr = window.devicePixelRatio || 1;
+      const W   = canvas.offsetWidth  || 0;
+      const H   = canvas.offsetHeight || 0;
+
+      if (!W || !H) return; // canvas pas encore visible dans le DOM
+
+      // Redimensionner le buffer si nécessaire (reset du contexte canvas)
+      if (W !== lastW || H !== lastH) {
+        canvas.width  = W * dpr;
+        canvas.height = H * dpr;
+        ctx.scale(dpr, dpr);
+        lastW = W;
+        lastH = H;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Fond légèrement teinté
+      ctx.fillStyle = 'rgba(184, 92, 56, 0.06)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Ligne centrale en pointillés (référence silence)
+      ctx.strokeStyle = 'rgba(184, 92, 56, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(0,   H / 2);
+      ctx.lineTo(W,   H / 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      if (!_micAnalyser) return;
+
+      // Données de forme d'onde (domaine temporel)
+      const data = new Uint8Array(_micAnalyser.fftSize);
+      _micAnalyser.getByteTimeDomainData(data);
+
+      // Calcul de l'amplitude RMS pour colorer l'onde
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = (data[i] - 128) / 128;
+        sum += v * v;
+      }
+      const rms       = Math.sqrt(sum / data.length);
+      const intensity = Math.min(1, rms * 7);
+
+      // Couleur : terracotta calme → or vif quand fort
+      const r = Math.round(184 + (196 - 184) * intensity);
+      const g = Math.round(92  + (154 - 92)  * intensity);
+      const b = Math.round(56  + (58  - 56)  * intensity);
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${0.55 + intensity * 0.45})`;
+      ctx.lineWidth   = 2 + intensity * 3;
+      ctx.lineJoin    = 'round';
+      ctx.lineCap     = 'round';
+
+      // Tracé de l'onde
+      ctx.beginPath();
+      const step = W / data.length;
+      for (let i = 0; i < data.length; i++) {
+        const y = (data[i] / 128.0) * (H / 2);
+        if (i === 0) ctx.moveTo(0, y);
+        else         ctx.lineTo(i * step, y);
+      }
+      ctx.stroke();
+    }
+
+    draw();
+  }
+
+  function stopWaveform() {
+    if (_waveRAF) { cancelAnimationFrame(_waveRAF); _waveRAF = null; }
+    if (_waveCanvas) {
+      const ctx = _waveCanvas.getContext('2d');
+      ctx.clearRect(0, 0, _waveCanvas.width, _waveCanvas.height);
+      _waveCanvas = null;
+    }
+  }
+
   function _triggerBubbles(intensity) {
     const spans = document.querySelectorAll('.bg-bubbles span');
     if (!spans.length) return;
@@ -200,7 +295,8 @@ const Utils = (() => {
 
   // ── SPEECH RECOGNITION ───────────────────────────────────
   // Retourne { recognized, success, quality, error? }
-  function recognize(expectedWords, timeoutMs, callback) {
+  // onInterim(text) : appelé en temps réel à chaque fragment capturé
+  function recognize(expectedWords, timeoutMs, callback, onInterim) {
     const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SRClass) {
       callback({ recognized: '', success: true, quality: 0.5, noApi: true });
@@ -209,9 +305,20 @@ const Utils = (() => {
 
     const rec = new SRClass();
     rec.lang            = 'fr-FR';
-    rec.interimResults  = false;
-    rec.maxAlternatives = 8;   // plus d'alternatives → plus de chances de match
+    rec.interimResults  = true;  // résultats en temps réel pour l'affichage et la sensibilité
+    rec.maxAlternatives = 8;
     rec.continuous      = false;
+
+    // Focaliser la reconnaissance sur les mots attendus (améliore la précision)
+    try {
+      const GList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+      if (GList) {
+        const grammar = '#JSGF V1.0; grammar mots; public <mot> = ' + expectedWords.join(' | ') + ' ;';
+        const list = new GList();
+        list.addFromString(grammar, 1);
+        rec.grammars = list;
+      }
+    } catch(e) {}
 
     let done  = false;
     let timer = null;
@@ -225,10 +332,33 @@ const Utils = (() => {
     }
 
     rec.onresult = (e) => {
-      const alts    = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
-      const best    = alts[0] || '';
-      const quality = _scoreRecognition(best, alts, expectedWords);
-      finish({ recognized: best, success: quality > 0.3, quality });
+      let interimText = '';
+      let finalText   = '';
+      const finalAlts = [];
+
+      for (let i = 0; i < e.results.length; i++) {
+        const res = e.results[i];
+        if (res.isFinal) {
+          finalText += res[0].transcript;
+          for (let j = 0; j < res.length; j++) {
+            finalAlts.push(res[j].transcript.toLowerCase().trim());
+          }
+        } else {
+          interimText += res[0].transcript;
+        }
+      }
+
+      // Retour visuel en temps réel
+      const liveText = (interimText || finalText).trim();
+      if (onInterim && liveText) onInterim(liveText);
+
+      // Traiter uniquement le résultat final
+      if (finalText) {
+        const best = finalText.toLowerCase().trim();
+        if (!finalAlts.length) finalAlts.push(best);
+        const quality = _scoreRecognition(best, finalAlts, expectedWords);
+        finish({ recognized: finalText.trim(), success: quality > 0.3, quality });
+      }
     };
 
     rec.onerror = (e) => {
@@ -243,7 +373,7 @@ const Utils = (() => {
 
     timer = setTimeout(
       () => finish({ recognized: '', success: false, quality: 0, error: 'timeout' }),
-      timeoutMs || 5000
+      timeoutMs || 7000
     );
 
     rec.start();
@@ -325,7 +455,9 @@ const Utils = (() => {
     stopBubbleMic,
     triggerBubblesManual,
     speak,
-    recognize
+    recognize,
+    startWaveform,
+    stopWaveform
   };
 
 })();

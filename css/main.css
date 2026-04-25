@@ -451,10 +451,59 @@ header p {
 }
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
+
+/* Tablette / grand téléphone */
 @media (max-width: 600px) {
-  .wrapper { padding: 12px 14px 32px; }
-  .tabs { gap: 6px; }
-  .tab-btn { padding: 8px 12px; font-size: 0.82rem; }
-  .card { padding: 18px; }
-  h1 { font-size: 1.7rem; }
+  .wrapper    { padding: 10px 12px 28px; }
+  .card       { padding: 16px; }
+  h1          { font-size: 1.6rem; }
+
+  /* Tabs : défilement horizontal plutôt que retour à la ligne */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 4px;
+    justify-content: flex-start;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 8px 12px; font-size: 0.82rem; flex-shrink: 0; }
+
+  /* Header */
+  header { padding: 20px 16px 12px; }
+  .logo-wrap { width: 66px; height: 66px; font-size: 1.8rem; margin-bottom: 10px; }
+
+  /* User pill */
+  .user-pill { font-size: 0.78rem; padding: 5px 10px; gap: 6px; top: 10px; right: 0; }
+  .user-pill__logout { padding: 4px 6px; font-size: 0.78rem; }
+
+  /* Toast : évite le débordement */
+  .toast { white-space: normal; max-width: 88vw; text-align: center; font-size: 0.85rem; }
+}
+
+/* Téléphone portrait */
+@media (max-width: 480px) {
+  .wrapper { padding: 8px 10px 24px; }
+  .card    { padding: 14px; border-radius: var(--radius); }
+
+  /* Header */
+  header { padding: 16px 10px 10px; }
+  .logo-wrap { width: 56px; height: 56px; font-size: 1.6rem; margin-bottom: 8px; }
+
+  /* Tabs : réduire encore le padding */
+  .tab-btn { padding: 7px 10px; font-size: 0.78rem; gap: 5px; }
+  .tab-btn i { font-size: 0.82rem; }
+
+  /* Progress */
+  .progress-section { padding: 12px 14px; }
+
+  /* Bannière navigateur */
+  #browserBanner { font-size: 0.82rem; padding: 10px 14px; }
+
+  /* Transcript zone — texte plus petit */
+  .transcript-zone__text  { font-size: 2rem; }
+  .transcript-zone        { min-height: 74px; padding: 10px 12px; }
+  .labiale-recording-zone__target strong { font-size: 1.3rem; }
 }

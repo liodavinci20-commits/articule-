@@ -129,6 +129,7 @@ const Sons = (() => {
   // ── ÉTAT LOCAL ────────────────────────────────────────────
   let _currentPanel = null;
   let _recSession   = null;
+  let _lastInterim  = '';   // dernier fragment capturé en temps réel
 
   // ── CONSTRUCTION DES GRILLES ─────────────────────────────
   function init() {
@@ -210,6 +211,9 @@ const Sons = (() => {
     _currentPanel = null;
     _stopLSFBlink();
     _stopRecording();
+    Utils.stopWaveform();
+    const canvas = document.getElementById('waveCanvas');
+    if (canvas) canvas.style.display = 'none';
     const overlay = document.getElementById('phonemeModal');
     overlay.classList.remove('open');
     overlay.setAttribute('aria-hidden', 'true');
@@ -220,10 +224,22 @@ const Sons = (() => {
     if (fb) { fb.className = 'phoneme-feedback'; fb.innerHTML = ''; }
     const btn = document.getElementById('panelRepeatBtn');
     if (btn) {
-      btn.disabled = false;
+      btn.disabled  = false;
+      btn.className = 'btn-primary';
       btn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Je répète !';
     }
     document.getElementById('panelMarkDoneBtn').style.display = 'none';
+    // Remettre la zone transcript à zéro
+    const zone   = document.getElementById('transcriptZone');
+    const textEl = document.getElementById('transcriptText');
+    const label  = document.getElementById('transcriptLabel');
+    if (zone)   zone.className    = 'transcript-zone transcript-zone--idle';
+    if (textEl) textEl.textContent = '—';
+    if (label)  label.textContent  = 'Ce que tu as dit';
+    // Arrêter le visualiseur
+    Utils.stopWaveform();
+    const canvas = document.getElementById('waveCanvas');
+    if (canvas) canvas.style.display = 'none';
   }
 
   function replaySound() {
@@ -232,55 +248,163 @@ const Sons = (() => {
     _startLSFBlink();
   }
 
+  function toggleRepeat() {
+    if (_recSession) _stopManually();
+    else             startRepeat();
+  }
+
   function startRepeat() {
-    if (!_currentPanel) return;
+    if (!_currentPanel || _recSession) return;
+
+    // Bouton → "Arrêter"
     const btn = document.getElementById('panelRepeatBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-circle-dot fa-beat" aria-hidden="true"></i> Écoute...';
+    btn.disabled  = false;
+    btn.className = 'btn-primary btn-stop';
+    btn.innerHTML = '<i class="fa-solid fa-stop" aria-hidden="true"></i> Arrêter';
+
+    // Zone transcript → mode écoute
+    const zone   = document.getElementById('transcriptZone');
+    const textEl = document.getElementById('transcriptText');
+    const label  = document.getElementById('transcriptLabel');
+    if (zone)   zone.className    = 'transcript-zone transcript-zone--listening';
+    if (textEl) textEl.textContent = '...';
+    if (label)  label.textContent  = 'J\'entends...';
+
+    // Feedback → "je t'écoute"
     const fb = document.getElementById('panelFeedback');
     fb.className = 'phoneme-feedback phoneme-feedback--listening';
-    fb.innerHTML = '<i class="fa-solid fa-ear-listen" aria-hidden="true"></i> Je t\'écoute... parle maintenant !';
+    fb.innerHTML = '<i class="fa-solid fa-ear-listen" aria-hidden="true"></i> Parle maintenant !';
+
+    _lastInterim = '';
+
+    // Visualiseur d'onde
+    const canvas = document.getElementById('waveCanvas');
+    if (canvas) { canvas.style.display = 'block'; Utils.startWaveform(canvas); }
+
     _recSession = Utils.recognize(
-      _currentPanel.testWords, 5000,
-      (result) => _handleRecognitionResult(result)
+      _currentPanel.testWords,
+      7000,
+      (result) => _handleRecognitionResult(result),
+      (interim) => _onInterim(interim)
     );
+  }
+
+  // ── COMPARAISON TEXTE → LETTRE CIBLE ──────────────────────
+  // Règle simple : le texte capturé commence-t-il par le son cible ?
+  // Ou contient-il un des mots de test ?
+  function _matchPhoneme(transcript, phoneme) {
+    if (!transcript || !phoneme) return false;
+    const norm = s => (s || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Mn}/gu, '')   // retire les accents
+      .replace(/[^a-z]/g, '')    // garde seulement les lettres
+      .trim();
+
+    const t   = norm(transcript);
+    const sym = norm(phoneme.symbol); // ex: 'a', 'b', 'ch', 'r'
+
+    if (!t) return false;
+
+    // Le transcript commence par le son cible — règle principale
+    // ex: heard='ah' sym='a' → 'ah'.startsWith('a') ✓
+    // ex: heard='chat' sym='ch' → 'chat'.startsWith('ch') ✓
+    if (sym && t.startsWith(sym)) return true;
+
+    // Vérifie aussi chaque mot de test (phonèmes dont le nom diffère de l'orthographe)
+    // ex: K → testWords inclut 'cou', 'cake' (prononcés "k" mais écrits avec "c")
+    return phoneme.testWords.some(w => {
+      const nw = norm(w);
+      return nw && (t === nw || t.startsWith(nw) || t.includes(nw));
+    });
+  }
+
+  // Mise à jour du transcript en temps réel pendant l'écoute
+  function _onInterim(text) {
+    _lastInterim = text;
+    const textEl = document.getElementById('transcriptText');
+    const label  = document.getElementById('transcriptLabel');
+    if (textEl) textEl.textContent = text || '...';
+    if (label)  label.textContent  = 'J\'entends...';
+  }
+
+  // L'enfant clique sur "Arrêter" : on arrête et on traite ce qui a été capturé
+  function _stopManually() {
+    if (!_recSession) return;
+    const btn = document.getElementById('panelRepeatBtn');
+    if (btn) btn.disabled = true;
+    try { _recSession.abort(); } catch(e) {}
+    // _lastInterim est lu dans _handleRecognitionResult via l'erreur 'aborted'
   }
 
   function _stopRecording() {
     if (_recSession) { try { _recSession.abort(); } catch(e) {} _recSession = null; }
+    _lastInterim = '';
   }
 
   function _handleRecognitionResult(result) {
-    _recSession = null;
-    const btn = document.getElementById('panelRepeatBtn');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Je répète !';
-    const fb = document.getElementById('panelFeedback');
+    const capturedInterim = _lastInterim;
+    _recSession  = null;
+    _lastInterim = '';
 
+    // Arrêter visualiseur
+    Utils.stopWaveform();
+    const canvas = document.getElementById('waveCanvas');
+    if (canvas) canvas.style.display = 'none';
+
+    // Restaurer bouton
+    const btn = document.getElementById('panelRepeatBtn');
+    btn.disabled  = false;
+    btn.className = 'btn-primary';
+    btn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Je répète !';
+
+    const fb     = document.getElementById('panelFeedback');
+    const zone   = document.getElementById('transcriptZone');
+    const textEl = document.getElementById('transcriptText');
+    const label  = document.getElementById('transcriptLabel');
+
+    // Cas : API non disponible (Firefox, Safari)
     if (result.noApi) {
+      if (zone)   zone.className    = 'transcript-zone transcript-zone--idle';
+      if (textEl) textEl.textContent = '—';
+      if (label)  label.textContent  = 'Ce que tu as dit';
       fb.className = 'phoneme-feedback phoneme-feedback--info';
-      fb.innerHTML = '<i class="fa-solid fa-circle-info"></i> Reconnaissance vocale non disponible (utilise Chrome).';
+      fb.innerHTML = '<i class="fa-solid fa-circle-info"></i> Utilise Google Chrome pour la reconnaissance vocale.';
       document.getElementById('panelMarkDoneBtn').style.display = 'inline-flex';
       return;
     }
 
-    if (result.success && result.quality >= 0.3) {
+    // Texte entendu : résultat final OU fragment interim si stop manuel
+    const heard = (result.recognized || capturedInterim || '').trim();
+
+    // Affichage dans la zone transcript (toujours visible)
+    if (label)  label.textContent  = 'Tu as dit';
+    if (textEl) textEl.textContent  = heard || '?';
+
+    // Cas : rien capturé du tout
+    if (!heard) {
+      if (zone) zone.className = 'transcript-zone transcript-zone--error';
+      fb.className = 'phoneme-feedback phoneme-feedback--error';
+      fb.innerHTML = '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Rien entendu — parle clairement et proche du micro !';
+      btn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Réessayer';
+      document.getElementById('panelMarkDoneBtn').style.display = 'inline-flex';
+      return;
+    }
+
+    // Comparaison texte capturé → lettre cible (règle simple)
+    const success = _matchPhoneme(heard, _currentPanel);
+
+    if (success) {
+      if (zone) zone.className = 'transcript-zone transcript-zone--success';
       fb.className = 'phoneme-feedback phoneme-feedback--success';
-      fb.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Bravo ! Tu as bien prononcé le son !';
+      fb.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Bravo ! C\'est bien le son !';
       Utils.fireConfetti();
       Utils.triggerBubblesManual(5);
       _markCurrentDone();
     } else {
+      if (zone) zone.className = 'transcript-zone transcript-zone--error';
       fb.className = 'phoneme-feedback phoneme-feedback--error';
-      let msg;
-      if (result.error === 'no-speech' || result.error === 'timeout') {
-        msg = 'Je n\'ai rien entendu. Parle plus fort et clique sur "Réessayer" !';
-      } else if (result.recognized) {
-        msg = 'J\'ai entendu "' + result.recognized + '"... réessaie !';
-      } else {
-        msg = 'Pas tout à fait... essaie encore !';
-      }
-      fb.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> ${msg}`;
+      fb.innerHTML = '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Pas tout à fait... réessaie !';
       btn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Réessayer';
       document.getElementById('panelMarkDoneBtn').style.display = 'inline-flex';
     }
@@ -342,7 +466,7 @@ const Sons = (() => {
   // ── API PUBLIQUE ──────────────────────────────────────────
   return {
     init, openPhonemePanel, closePhonemePanel,
-    replaySound, startRepeat, markDoneManually,
+    replaySound, startRepeat, toggleRepeat, markDoneManually,
     getMouthSVG, getMouthImg, getLSFSVG
   };
 

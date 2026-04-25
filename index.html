@@ -57,6 +57,17 @@
       Ouvre grand la bouche, langue basse.
     </div>
 
+    <!-- Zone transcript — ce que le micro a entendu -->
+    <div id="transcriptZone" class="transcript-zone transcript-zone--idle">
+      <div class="transcript-zone__label" id="transcriptLabel">Ce que tu as dit</div>
+      <div class="transcript-zone__text" id="transcriptText">—</div>
+    </div>
+
+    <!-- Visualiseur de son (onde en temps réel pendant l'enregistrement) -->
+    <canvas id="waveCanvas" height="56"
+            style="display:none; width:100%; border-radius:8px; margin:6px 0 4px;"
+            aria-hidden="true"></canvas>
+
     <!-- Feedback reconnaissance -->
     <div class="phoneme-feedback" id="panelFeedback" aria-live="polite"></div>
 
@@ -72,7 +83,7 @@
       <button class="btn-secondary" onclick="Sons.replaySound()" aria-label="Réécouter le son">
         <i class="fa-solid fa-volume-high" aria-hidden="true"></i> Réécouter
       </button>
-      <button class="btn-primary" id="panelRepeatBtn" onclick="Sons.startRepeat()" aria-label="Répéter le son">
+      <button class="btn-primary" id="panelRepeatBtn" onclick="Sons.toggleRepeat()" aria-label="Répéter le son">
         <i class="fa-solid fa-microphone" aria-hidden="true"></i> Je répète !
       </button>
     </div>
@@ -254,6 +265,21 @@
         <h3>Module 3 — Lecture Labiale</h3>
         <p>Clique : écoute la syllabe ou le mot, puis répète-le !</p>
       </div>
+    </div>
+
+    <!-- Zone d'enregistrement active (transcript en temps réel) -->
+    <div id="labialeRecordingZone" class="labiale-recording-zone" style="display:none;" aria-live="polite">
+      <div class="labiale-recording-zone__target">
+        Tu dois dire : <strong id="labialeTargetWord">—</strong>
+      </div>
+      <canvas id="labialeWaveCanvas" height="56"
+              style="display:none; width:100%; border-radius:8px; margin:6px 0 2px;"
+              aria-hidden="true"></canvas>
+      <div id="labialeTranscriptZone" class="transcript-zone transcript-zone--idle">
+        <div class="transcript-zone__label" id="labialeTranscriptLabel">Ce que tu as dit</div>
+        <div class="transcript-zone__text" id="labialeTranscriptText">—</div>
+      </div>
+      <div class="phoneme-feedback" id="labialeFeedback"></div>
     </div>
 
     <div class="card">
