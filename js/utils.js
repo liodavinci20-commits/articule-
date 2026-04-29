@@ -88,6 +88,143 @@ const Utils = (() => {
     }
   }
 
+  // ── AUDIO PHONÈMES (fichiers MP3) ────────────────────────
+  // Phonèmes couverts par un fichier audio — les autres tombent sur speak()
+  const _PHONEME_AUDIO = {
+    'v-a':  'sons%20ok/voyelles/a.mp3',
+    'v-ei': 'sons%20ok/voyelles/%C3%A9.mp3',
+    'v-i':  'sons%20ok/voyelles/i.mp3',
+    'v-o':  'sons%20ok/voyelles/o.mp3',
+    'v-u':  'sons%20ok/voyelles/u.mp3',
+    'c-b':  'sons%20ok/consonnes/b.mp3',
+    'c-ch': 'sons%20ok/consonnes/ch.mp3',
+    'c-d':  'sons%20ok/consonnes/d.mp3',
+    'c-f':  'sons%20ok/consonnes/f.mp3',
+    'c-g':  'sons%20ok/consonnes/g.mp3',
+    'c-j':  'sons%20ok/consonnes/j.mp3',
+    'c-k':  'sons%20ok/consonnes/k.mp3',
+    'c-l':  'sons%20ok/consonnes/l.mp3',
+    'c-m':  'sons%20ok/consonnes/m.mp3',
+    'c-mn': 'sons%20ok/consonnes/m.mp3',
+    'c-n':  'sons%20ok/consonnes/n.mp3',
+    'c-nn': 'sons%20ok/consonnes/n.mp3',
+    'c-p':  'sons%20ok/consonnes/p.mp3',
+    'c-r':  'sons%20ok/consonnes/r.mp3',
+    'c-s':  'sons%20ok/consonnes/s.mp3',
+    'c-t':  'sons%20ok/consonnes/t.mp3',
+    'c-v':  'sons%20ok/consonnes/v.mp3',
+    'c-z':  'sons%20ok/consonnes/z.mp3',
+  };
+
+  // ── AUDIO SYLLABES ET MOTS ────────────────────────────────
+  const _BASE_SYL = 'syllabe%20et%20mots/syllabes/';
+  const _BASE_MOT = 'syllabe%20et%20mots/mots/';
+
+  const _LABIALE_AUDIO = {
+    // B
+    'syl-ba': _BASE_SYL+'ba.mp3',  'syl-be': _BASE_SYL+'bè.mp3',
+    'syl-bi': _BASE_SYL+'bi.mp3',  'syl-bo': _BASE_SYL+'bo.mp3',  'syl-bu': _BASE_SYL+'bu.mp3',
+    // P
+    'syl-pa': _BASE_SYL+'pa.mp3',  'syl-pe': _BASE_SYL+'pè.mp3',
+    'syl-pi': _BASE_SYL+'pi.mp3',  'syl-po': _BASE_SYL+'po.mp3',  'syl-pu': _BASE_SYL+'pu.mp3',
+    // M
+    'syl-ma': _BASE_SYL+'ma.mp3',  'syl-me': _BASE_SYL+'mè.mp3',
+    'syl-mi': _BASE_SYL+'mi.mp3',  'syl-mo': _BASE_SYL+'mo.mp3',  'syl-mu': _BASE_SYL+'mu.mp3',
+    // T
+    'syl-ta': _BASE_SYL+'ta.mp3',  'syl-te': _BASE_SYL+'tè.mp3',
+    'syl-ti': _BASE_SYL+'ti.mp3',  'syl-to': _BASE_SYL+'to.mp3',  'syl-tu': _BASE_SYL+'tu.mp3',
+    // D
+    'syl-da': _BASE_SYL+'da.mp3',  'syl-de': _BASE_SYL+'dè.mp3',
+    'syl-di': _BASE_SYL+'di.mp3',  'syl-do': _BASE_SYL+'do.mp3',  'syl-du': _BASE_SYL+'du.mp3',
+    // N
+    'syl-na': _BASE_SYL+'na.mp3',  'syl-ne': _BASE_SYL+'nè.mp3',
+    'syl-ni': _BASE_SYL+'ni.mp3',  'syl-no': _BASE_SYL+'no.mp3',  'syl-nu': _BASE_SYL+'nu.mp3',
+    // K
+    'syl-ka': _BASE_SYL+'ka.mp3',  'syl-ke': _BASE_SYL+'kè.mp3',
+    'syl-ki': _BASE_SYL+'ki.mp3',  'syl-ko': _BASE_SYL+'ko.mp3',  'syl-ku': _BASE_SYL+'ku.mp3',
+    // G
+    'syl-ga': _BASE_SYL+'ga.mp3',  'syl-ge': _BASE_SYL+'gè.mp3',
+    'syl-gi': _BASE_SYL+'gi.mp3',  'syl-go': _BASE_SYL+'go.mp3',  'syl-gu': _BASE_SYL+'gu.mp3',
+    // F
+    'syl-fa': _BASE_SYL+'fa.mp3',  'syl-fe': _BASE_SYL+'fè.mp3',
+    'syl-fi': _BASE_SYL+'fi.mp3',  'syl-fo': _BASE_SYL+'fo.mp3',  'syl-fu': _BASE_SYL+'fu.mp3',
+    // V
+    'syl-va': _BASE_SYL+'va.mp3',  'syl-ve': _BASE_SYL+'vè.mp3',
+    'syl-vi': _BASE_SYL+'vi.mp3',  'syl-vo': _BASE_SYL+'vo.mp3',  'syl-vu': _BASE_SYL+'vu.mp3',
+    // S
+    'syl-sa': _BASE_SYL+'sa.mp3',  'syl-se': _BASE_SYL+'sè.mp3',
+    'syl-si': _BASE_SYL+'si.mp3',  'syl-so': _BASE_SYL+'so.mp3',  'syl-su': _BASE_SYL+'su.mp3',
+    // Z
+    'syl-za': _BASE_SYL+'za.mp3',  'syl-ze': _BASE_SYL+'zè.mp3',
+    'syl-zi': _BASE_SYL+'zi.mp3',  'syl-zo': _BASE_SYL+'zo.mp3',  'syl-zu': _BASE_SYL+'zu.mp3',
+    // CH
+    'syl-cha': _BASE_SYL+'cha.mp3', 'syl-che': _BASE_SYL+'chè.mp3',
+    'syl-chi': _BASE_SYL+'chi.mp3', 'syl-cho': _BASE_SYL+'cho.mp3', 'syl-chu': _BASE_SYL+'chu.mp3',
+    // J
+    'syl-ja': _BASE_SYL+'ja.mp3',  'syl-je': _BASE_SYL+'jè.mp3',
+    'syl-ji': _BASE_SYL+'ji.mp3',  'syl-jo': _BASE_SYL+'jo.mp3',  'syl-ju': _BASE_SYL+'ju.mp3',
+    // L
+    'syl-la': _BASE_SYL+'la.mp3',  'syl-le': _BASE_SYL+'lè.mp3',
+    'syl-li': _BASE_SYL+'li.mp3',  'syl-lo': _BASE_SYL+'lo.mp3',  'syl-lu': _BASE_SYL+'lu.mp3',
+    // R
+    'syl-ra': _BASE_SYL+'ra.mp3',  'syl-re': _BASE_SYL+'rè.mp3',
+    'syl-ri': _BASE_SYL+'ri.mp3',  'syl-ro': _BASE_SYL+'ro.mp3',  'syl-ru': _BASE_SYL+'ru.mp3',
+    // MOTS (papa, maman, manou, pain absents → TTS automatique)
+    'mot-baba':    _BASE_MOT+'baba.mp3',
+    'mot-dada':    _BASE_MOT+'dada.mp3',
+    'mot-dudu':    _BASE_MOT+'dudu.mp3',
+    'mot-fafa':    _BASE_MOT+'fafa.mp3',
+    'mot-pipi':    _BASE_MOT+'pipi.mp3',
+    'mot-nani':    _BASE_MOT+'nani.mp3',
+    'mot-tata':    _BASE_MOT+'tata.mp3',
+    'mot-dolo':    _BASE_MOT+'dolo.mp3',
+    'mot-toto':    _BASE_MOT+'toto.mp3',
+    'mot-tape':    _BASE_MOT+'tape.mp3',
+    'mot-je':      _BASE_MOT+'je.mp3',
+    'mot-bonne':   _BASE_MOT+'bonne.mp3',
+    'mot-choux':   _BASE_MOT+'choux.mp3',
+    'mot-bonjour': _BASE_MOT+'bonjour.mp3',
+    'mot-merci':   _BASE_MOT+'merci.mp3',
+    'mot-eau':     _BASE_MOT+'eau.mp3',
+    'mot-chat':    _BASE_MOT+'chat.mp3',
+    'mot-oui':     _BASE_MOT+'oui.mp3',
+    'mot-non':     _BASE_MOT+'non.mp3',
+    'mot-aide':    _BASE_MOT+'aide.mp3',
+    'mot-ami':     _BASE_MOT+'ami.mp3',
+  };
+
+  let _currentAudio = null;
+
+  // Joue le fichier MP3 du phonème si disponible, sinon TTS
+  function playPhoneme(phonemeId, symbolFallback, onEnd) {
+    if (_currentAudio) {
+      _currentAudio.pause();
+      _currentAudio = null;
+    }
+    const src = _PHONEME_AUDIO[phonemeId];
+    if (!src) {
+      speak(symbolFallback, onEnd);
+      return;
+    }
+    const audio = new Audio(src);
+    _currentAudio = audio;
+    audio.onended = () => { _currentAudio = null; if (onEnd) onEnd(); };
+    audio.onerror = () => { _currentAudio = null; speak(symbolFallback, onEnd); };
+    audio.play().catch(() => { _currentAudio = null; speak(symbolFallback, onEnd); });
+  }
+
+  // Joue le fichier MP3 de la syllabe/mot si disponible, sinon TTS
+  function playLabiale(itemId, textFallback, onEnd) {
+    if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
+    const src = _LABIALE_AUDIO[itemId];
+    if (!src) { speak(textFallback, onEnd); return; }
+    const audio = new Audio(src);
+    _currentAudio = audio;
+    audio.onended = () => { _currentAudio = null; if (onEnd) onEnd(); };
+    audio.onerror = () => { _currentAudio = null; speak(textFallback, onEnd); };
+    audio.play().catch(() => { _currentAudio = null; speak(textFallback, onEnd); });
+  }
+
   // ── CLÉ D'ACTIVATION ─────────────────────────────────────
   function getApiKey() {
     return localStorage.getItem('deepgram_api_key') || '';
@@ -313,6 +450,8 @@ const Utils = (() => {
     earnBadge,
     logJournal,
     fireConfetti,
+    playPhoneme,
+    playLabiale,
     getApiKey,
     setApiKey,
     speak,

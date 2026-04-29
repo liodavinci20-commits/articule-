@@ -181,7 +181,7 @@ const Sons = (() => {
     if (State.get('completedPhonemes').length === 0 && !State.has('earnedBadges', 'first_sound')) {
       Utils.earnBadge('first_sound');
     }
-    Utils.speak(phoneme.symbol);
+    Utils.playPhoneme(phoneme.id, phoneme.symbol);
     document.getElementById('panelSymbol').textContent  = phoneme.symbol;
     document.getElementById('panelExample').textContent = phoneme.example;
     document.getElementById('panelHint').textContent    = phoneme.hint;
@@ -224,7 +224,7 @@ const Sons = (() => {
 
   function replaySound() {
     if (!_currentPanel) return;
-    Utils.speak(_currentPanel.symbol);
+    Utils.playPhoneme(_currentPanel.id, _currentPanel.symbol);
     _startLSFBlink();
   }
 

@@ -117,8 +117,8 @@ const Labiale = (() => {
   // ── LECTURE (TTS) ─────────────────────────────────────────
   function _playItem(item, card) {
     card.classList.add('labiale-card--playing');
-    Utils.speak(item.text, () => card.classList.remove('labiale-card--playing'));
-    setTimeout(() => card.classList.remove('labiale-card--playing'), 2000);
+    Utils.playLabiale(item.id, item.text, () => card.classList.remove('labiale-card--playing'));
+    setTimeout(() => card.classList.remove('labiale-card--playing'), 3000);
   }
 
   // ── COMPARAISON TEXTE → CIBLE ─────────────────────────────

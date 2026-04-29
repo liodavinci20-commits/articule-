@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articule+ — Diagrammes UML</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg:      #F4F1EC;
+      --surface: #FFFFFF;
+      --text:    #2A2A2A;
+      --muted:   #787068;
+      --terra:   #B85C38;
+      --sage:    #5C8A6B;
+      --slate:   #4A7BA8;
+      --plum:    #6B4E8A;
+      --gold:    #C49A3A;
+      --border:  #DDD8CF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 36px 24px 64px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    header { margin-bottom: 40px; }
+    header h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 2.2rem;
+      color: var(--terra);
+      margin-bottom: 4px;
+    }
+    header p { color: var(--muted); font-size: .95rem; }
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 3px 16px rgba(0,0,0,.08);
+      padding: 28px 32px;
+      margin-bottom: 36px;
+      overflow-x: auto;
+    }
+    .card-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      font-size: .72rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--slate);
+      color: #fff;
+    }
+    .mermaid { display: flex; justify-content: center; }
+    svg text { font-family: 'Nunito', sans-serif !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Articule+ — Diagrammes UML</h1>
+  <p>Diagramme de cas d'utilisation &amp; Diagramme de séquence</p>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     DIAGRAMME DE CAS D'UTILISATION
+════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-title">
+    Diagramme de cas d'utilisation
+    <span class="badge">UML</span>
+  </div>
+
+  <svg viewBox="0 0 960 590"
+       xmlns="http://www.w3.org/2000/svg"
+       style="width:100%;max-width:960px;display:block;margin:0 auto"
+       font-family="Nunito, sans-serif">
+
+    <defs>
+      <marker id="arrowGray" markerWidth="8" markerHeight="6"
+              refX="6" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#AAA5A0"/>
+      </marker>
+      <marker id="arrowBlue" markerWidth="8" markerHeight="6"
+              refX="6" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#4A7BA8"/>
+      </marker>
+      <marker id="arrowGreen" markerWidth="8" markerHeight="6"
+              refX="6" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#5C8A6B"/>
+      </marker>
+    </defs>
+
+    <!-- ── Frontière du système ── -->
+    <rect x="122" y="16" width="654" height="536"
+          rx="10" fill="#FAFAF8"
+          stroke="#4A7BA8" stroke-width="2" stroke-dasharray="10,4"/>
+    <text x="449" y="566"
+          text-anchor="middle" font-size="13" font-weight="700"
+          fill="#4A7BA8" font-family="Baloo 2, cursive">Articule+</text>
+
+    <!-- ══ LIGNES (dessinées avant les ellipses pour passer dessous) ══ -->
+
+    <!-- Enfant → colonne gauche (cx=292, rx=92 → bord gauche=200) -->
+    <line x1="74" y1="274" x2="200" y2="70"  stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="200" y2="150" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="200" y2="230" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="200" y2="310" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="200" y2="390" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="200" y2="470" stroke="#C8C4BE" stroke-width="1.4"/>
+
+    <!-- Enfant → colonne droite (cx=586, rx=96 → bord gauche=490) -->
+    <line x1="74" y1="274" x2="490" y2="70"  stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="490" y2="150" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="490" y2="230" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="490" y2="310" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="490" y2="390" stroke="#C8C4BE" stroke-width="1.4"/>
+    <line x1="74" y1="274" x2="490" y2="470" stroke="#C8C4BE" stroke-width="1.4"/>
+
+    <!-- Supabase → S'authentifier (bord droit col gauche = 292+92=384) -->
+    <line x1="384" y1="70"  x2="826" y2="148"
+          stroke="#5C8A6B" stroke-width="1.4" stroke-dasharray="6,3"
+          marker-end="url(#arrowGreen)"/>
+    <!-- Supabase → Se déconnecter (bord droit col droite = 586+96=682) -->
+    <line x1="682" y1="470" x2="826" y2="182"
+          stroke="#5C8A6B" stroke-width="1.4" stroke-dasharray="6,3"
+          marker-end="url(#arrowGreen)"/>
+
+    <!-- API → Répéter phonème (bord droit col gauche) -->
+    <line x1="384" y1="230" x2="822" y2="372"
+          stroke="#4A7BA8" stroke-width="1.4" stroke-dasharray="6,3"
+          marker-end="url(#arrowBlue)"/>
+    <!-- API → Répéter syllabe/mot (bord droit col gauche) -->
+    <line x1="384" y1="470" x2="822" y2="402"
+          stroke="#4A7BA8" stroke-width="1.4" stroke-dasharray="6,3"
+          marker-end="url(#arrowBlue)"/>
+
+    <!-- ══ CAS D'UTILISATION — colonne gauche (cx=292) ══ -->
+    <!-- Couleurs par module : terra=Sons, sage=Respiration, slate=Labiale, muted=Compte -->
+
+    <!-- S'authentifier -->
+    <ellipse cx="292" cy="70" rx="92" ry="22"
+             fill="white" stroke="#B85C38" stroke-width="1.6"/>
+    <text x="292" y="74" text-anchor="middle" font-size="11" fill="#2A2A2A">S'authentifier</text>
+
+    <!-- Écouter un phonème -->
+    <ellipse cx="292" cy="150" rx="92" ry="22"
+             fill="white" stroke="#B85C38" stroke-width="1.6"/>
+    <text x="292" y="154" text-anchor="middle" font-size="11" fill="#2A2A2A">Écouter un phonème</text>
+
+    <!-- Répéter un phonème -->
+    <ellipse cx="292" cy="230" rx="92" ry="22"
+             fill="white" stroke="#B85C38" stroke-width="1.6"/>
+    <text x="292" y="234" text-anchor="middle" font-size="11" fill="#2A2A2A">Répéter un phonème</text>
+
+    <!-- Exercice de respiration -->
+    <ellipse cx="292" cy="310" rx="92" ry="22"
+             fill="white" stroke="#5C8A6B" stroke-width="1.6"/>
+    <text x="292" y="306" text-anchor="middle" font-size="11" fill="#2A2A2A">Exercice de</text>
+    <text x="292" y="319" text-anchor="middle" font-size="11" fill="#2A2A2A">respiration</text>
+
+    <!-- Écouter syllabe / mot -->
+    <ellipse cx="292" cy="390" rx="92" ry="22"
+             fill="white" stroke="#4A7BA8" stroke-width="1.6"/>
+    <text x="292" y="386" text-anchor="middle" font-size="11" fill="#2A2A2A">Écouter</text>
+    <text x="292" y="399" text-anchor="middle" font-size="11" fill="#2A2A2A">syllabe / mot</text>
+
+    <!-- Répéter syllabe / mot -->
+    <ellipse cx="292" cy="470" rx="92" ry="22"
+             fill="white" stroke="#4A7BA8" stroke-width="1.6"/>
+    <text x="292" y="466" text-anchor="middle" font-size="11" fill="#2A2A2A">Répéter</text>
+    <text x="292" y="479" text-anchor="middle" font-size="11" fill="#2A2A2A">syllabe / mot</text>
+
+    <!-- ══ CAS D'UTILISATION — colonne droite (cx=586) ══ -->
+
+    <!-- Mode invité -->
+    <ellipse cx="586" cy="70" rx="96" ry="22"
+             fill="white" stroke="#B85C38" stroke-width="1.6"/>
+    <text x="586" y="74" text-anchor="middle" font-size="11" fill="#2A2A2A">Mode invité</text>
+
+    <!-- Voir diagramme bouche & LSF -->
+    <ellipse cx="586" cy="150" rx="96" ry="22"
+             fill="white" stroke="#B85C38" stroke-width="1.6"/>
+    <text x="586" y="146" text-anchor="middle" font-size="11" fill="#2A2A2A">Voir diagramme</text>
+    <text x="586" y="159" text-anchor="middle" font-size="11" fill="#2A2A2A">bouche &amp; LSF</text>
+
+    <!-- Répondre au quiz -->
+    <ellipse cx="586" cy="230" rx="96" ry="22"
+             fill="white" stroke="#6B4E8A" stroke-width="1.6"/>
+    <text x="586" y="234" text-anchor="middle" font-size="11" fill="#2A2A2A">Répondre au quiz</text>
+
+    <!-- Consulter récompenses -->
+    <ellipse cx="586" cy="310" rx="96" ry="22"
+             fill="white" stroke="#C49A3A" stroke-width="1.6"/>
+    <text x="586" y="306" text-anchor="middle" font-size="11" fill="#2A2A2A">Consulter</text>
+    <text x="586" y="319" text-anchor="middle" font-size="11" fill="#2A2A2A">récompenses</text>
+
+    <!-- Configurer reconnaissance -->
+    <ellipse cx="586" cy="390" rx="96" ry="22"
+             fill="white" stroke="#787068" stroke-width="1.6"/>
+    <text x="586" y="386" text-anchor="middle" font-size="11" fill="#2A2A2A">Configurer</text>
+    <text x="586" y="399" text-anchor="middle" font-size="11" fill="#2A2A2A">reconnaissance</text>
+
+    <!-- Se déconnecter -->
+    <ellipse cx="586" cy="470" rx="96" ry="22"
+             fill="white" stroke="#787068" stroke-width="1.6"/>
+    <text x="586" y="474" text-anchor="middle" font-size="11" fill="#2A2A2A">Se déconnecter</text>
+
+    <!-- ══ ACTEUR : Enfant (bonhomme) ══ -->
+    <circle cx="55" cy="218" r="17" fill="white" stroke="#2A2A2A" stroke-width="2"/>
+    <line x1="55" y1="235" x2="55" y2="292" stroke="#2A2A2A" stroke-width="2"/>
+    <line x1="55" y1="256" x2="30"  y2="280" stroke="#2A2A2A" stroke-width="2"/>
+    <line x1="55" y1="256" x2="80"  y2="280" stroke="#2A2A2A" stroke-width="2"/>
+    <line x1="55" y1="292" x2="36"  y2="326" stroke="#2A2A2A" stroke-width="2"/>
+    <line x1="55" y1="292" x2="74"  y2="326" stroke="#2A2A2A" stroke-width="2"/>
+    <text x="55" y="348" text-anchor="middle"
+          font-size="12" font-weight="700" fill="#2A2A2A">Enfant</text>
+
+    <!-- ══ ACTEUR : Supabase (cylindre) ══ -->
+    <ellipse cx="858" cy="130" rx="34" ry="10"
+             fill="#EFF7F2" stroke="#5C8A6B" stroke-width="1.6"/>
+    <rect x="824" y="130" width="68" height="38"
+          fill="#EFF7F2" stroke="#5C8A6B" stroke-width="1.6"/>
+    <line x1="824" y1="130" x2="824" y2="168" stroke="#5C8A6B" stroke-width="1.6"/>
+    <line x1="892" y1="130" x2="892" y2="168" stroke="#5C8A6B" stroke-width="1.6"/>
+    <ellipse cx="858" cy="168" rx="34" ry="10"
+             fill="#EFF7F2" stroke="#5C8A6B" stroke-width="1.6"/>
+    <text x="858" y="190" text-anchor="middle"
+          font-size="11" font-weight="700" fill="#5C8A6B">Supabase</text>
+
+    <!-- ══ ACTEUR : API Reconnaissance (boîte) ══ -->
+    <rect x="820" y="360" width="76" height="56"
+          rx="6" fill="#EEF4FB" stroke="#4A7BA8" stroke-width="1.6"/>
+    <text x="858" y="380" text-anchor="middle"
+          font-size="10" font-weight="700" fill="#4A7BA8">API</text>
+    <text x="858" y="394" text-anchor="middle"
+          font-size="10" fill="#4A7BA8">Reconnais-</text>
+    <text x="858" y="407" text-anchor="middle"
+          font-size="10" fill="#4A7BA8">sance vocale</text>
+
+    <!-- ══ LÉGENDE ══ -->
+    <line x1="134" y1="552" x2="168" y2="552"
+          stroke="#C8C4BE" stroke-width="1.4"/>
+    <text x="174" y="556" font-size="10" fill="#787068">Association acteur/UC</text>
+    <line x1="300" y1="552" x2="334" y2="552"
+          stroke="#4A7BA8" stroke-width="1.4" stroke-dasharray="5,3"/>
+    <text x="340" y="556" font-size="10" fill="#787068">Appel système externe</text>
+  </svg>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     DIAGRAMME DE SÉQUENCE
+════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-title">
+    Diagramme de séquence — Reconnaissance vocale (Module Sons)
+    <span class="badge">UML</span>
+  </div>
+
+  <div class="mermaid">
+sequenceDiagram
+    actor E as Enfant
+    participant UI as Interface
+    participant Sons as Module Sons
+    participant Utils
+    participant API as API Reconnaissance
+    participant DB as Supabase
+
+    E->>UI: Ouvre l'application
+    UI->>DB: getSession()
+    DB-->>UI: Session utilisateur
+    UI->>DB: loadFromSupabase()
+    DB-->>UI: Progression sauvegardée
+    UI->>Sons: init()
+    Sons-->>UI: Grilles phonèmes affichées
+
+    Note over E,Sons: L'enfant clique sur un phonème (ex. A)
+
+    E->>Sons: openPhonemePanel(phonème A)
+    Sons->>Utils: playPhoneme('v-a', 'A')
+    Utils-->>E: Lecture MP3 — son du phonème
+    Sons-->>E: Affiche diagramme bouche + image LSF
+
+    Note over E,Sons: L'enfant clique sur "Je répète !"
+
+    E->>Sons: toggleRepeat()
+    Sons->>Utils: recognize(testWords, 7000, callback)
+    Utils->>E: Demande accès microphone
+    E-->>Utils: Accès accordé
+    Utils-->>Sons: Enregistrement démarré
+
+    loop Enregistrement (max 7 secondes)
+        Utils-->>Sons: onInterim("6s... 5s...")
+        Sons-->>E: Compte à rebours affiché
+    end
+
+    Utils->>API: POST blob audio (audio/webm)
+    Note over API: Transcription en français<br/>modèle nova-2
+    API-->>Utils: {"transcript": "arbre"}
+    Utils-->>Sons: callback({recognized, quality})
+
+    Sons->>Sons: _matchPhoneme("arbre", phonème A)
+
+    alt Succès — le son correspond
+        Sons-->>E: Bravo ! C'est bien le son !
+        Sons->>Utils: addStars(10)
+        Utils-->>E: Toast "+10 étoiles !"
+        Sons->>Utils: fireConfetti()
+        Sons->>Utils: logJournal("fa-comment", "Son A")
+        Utils->>DB: Sync progression (délai 1,5s)
+        DB-->>Utils: OK
+    else Échec — le son ne correspond pas
+        Sons-->>E: Pas tout à fait... réessaie !
+        Sons-->>E: Bouton "Marquer comme réussi" (après 0s)
+    end
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor:           '#F4F1EC',
+      primaryTextColor:       '#2A2A2A',
+      primaryBorderColor:     '#4A7BA8',
+      lineColor:              '#787068',
+      secondaryColor:         '#EDE9E1',
+      tertiaryColor:          '#FFFFFF',
+      actorBorder:            '#B85C38',
+      actorBkg:               '#FDF5F2',
+      actorTextColor:         '#2A2A2A',
+      actorLineColor:         '#DDD8CF',
+      activationBorderColor:  '#B85C38',
+      activationBkgColor:     '#FDF5F2',
+      noteBorderColor:        '#C49A3A',
+      noteBkgColor:           '#FEF9EC',
+      noteTextColor:          '#2A2A2A',
+      loopTextColor:          '#6B4E8A',
+      labelBoxBorderColor:    '#4A7BA8',
+      labelBoxBkgColor:       '#EEF4FB',
+      labelTextColor:         '#2A2A2A',
+      altSectionBkgColor:     '#F4F1EC',
+      altSectionBkgColor2:    '#EDE9E1',
+      sequenceNumberColor:    '#FFFFFF',
+      fontFamily:             'Nunito, sans-serif',
+    },
+    sequence: {
+      actorMargin:    80,
+      width:          148,
+      height:         60,
+      messageMargin:  32,
+      mirrorActors:   false,
+      useMaxWidth:    true,
+    }
+  });
+</script>
+</body>
+</html>
