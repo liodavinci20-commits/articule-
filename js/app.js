@@ -9,6 +9,31 @@ if (window.speechSynthesis) {
 // ── ACTIONS GLOBALES (déconnexion, reset) ─────────────────
 const App = {
 
+  // ── RECONNAISSANCE VOCALE ─────────────────────────────────
+  showApiKeyModal() {
+    const m = document.getElementById('apiKeyModal');
+    if (m) { m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); }
+    const input = document.getElementById('apiKeyInput');
+    if (input) input.value = Utils.getApiKey();
+    setTimeout(() => { if (input) input.focus(); }, 100);
+  },
+
+  hideApiKeyModal() {
+    const m = document.getElementById('apiKeyModal');
+    if (m) { m.classList.remove('open'); m.setAttribute('aria-hidden', 'true'); }
+  },
+
+  saveApiKey() {
+    const input = document.getElementById('apiKeyInput');
+    const key = input ? input.value.trim() : '';
+    if (!key) { Utils.showToast('Clé API vide.', 'info'); return; }
+    Utils.setApiKey(key);
+    App.hideApiKeyModal();
+    const banner = document.getElementById('apiKeyBanner');
+    if (banner) banner.style.display = 'none';
+    Utils.showToast('Reconnaissance vocale activée !', 'success');
+  },
+
   async logout() {
     const isGuest = localStorage.getItem('articule_active_user') === 'guest';
     if (!isGuest) {
@@ -118,9 +143,9 @@ window.addEventListener('load', async () => {
     if (greet) greet.textContent = "Bonjour, invité(e) ! Prêt(e) à jouer ?";
   }
 
-  // Avertissement navigateur
-  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-    const banner = document.getElementById('browserBanner');
+  // Bannière si la reconnaissance vocale n'est pas configurée
+  if (!Utils.getApiKey()) {
+    const banner = document.getElementById('apiKeyBanner');
     if (banner) banner.style.display = 'flex';
   }
 
@@ -170,6 +195,8 @@ document.addEventListener('keydown', e => {
   if (phoneme && phoneme.classList.contains('open')) Sons.closePhonemePanel();
   const reset = document.getElementById('resetConfirmModal');
   if (reset && reset.classList.contains('open')) App.hideResetConfirm();
+  const apiKey = document.getElementById('apiKeyModal');
+  if (apiKey && apiKey.classList.contains('open')) App.hideApiKeyModal();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -177,4 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (overlay) overlay.addEventListener('click', e => { if (e.target === overlay) Sons.closePhonemePanel(); });
   const resetOverlay = document.getElementById('resetConfirmModal');
   if (resetOverlay) resetOverlay.addEventListener('click', e => { if (e.target === resetOverlay) App.hideResetConfirm(); });
+  const apiKeyOverlay = document.getElementById('apiKeyModal');
+  if (apiKeyOverlay) apiKeyOverlay.addEventListener('click', e => { if (e.target === apiKeyOverlay) App.hideApiKeyModal(); });
 });

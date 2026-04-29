@@ -8,11 +8,9 @@ const Sons = (() => {
   const _B = 'dossier%20images/';
   const _C = _B + 'les%20consonnes/';
 
-  // Image par id de phonème → modale d'exercice (côté gauche)
   const PHONEME_IMG = {
     'v-a':  _B + 'voyelles/a.png',
     'v-e':  _B + 'voyelles/e.png',
-    // v-ei (É) → SVG, pas d'image disponible
     'v-i':  _B + 'voyelles/i.png',
     'v-o':  _B + 'voyelles/o.png',
     'v-u':  _B + 'voyelles/u.png',
@@ -36,7 +34,6 @@ const Sons = (() => {
     'c-nn': _C + 'dentales/n.png',
   };
 
-  // Image par mouthPos → quiz (une image représentative par catégorie)
   const QUIZ_IMG = {
     'wide-open':     _B + 'voyelles/a.png',
     'half-open':     _B + 'voyelles/e.png',
@@ -53,7 +50,6 @@ const Sons = (() => {
     'rhotic':        _C + 'liquide/r.png',
   };
 
-  // SVG conservé uniquement pour É — aucune image disponible dans ce dossier
   const _SPREAD_SVG = `
     <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg"
          stroke-linecap="round" stroke-linejoin="round">
@@ -76,8 +72,6 @@ const Sons = (() => {
       <text x="110" y="142" text-anchor="middle" font-size="11" fill="#7A7570" font-family="sans-serif">Lèvres étirées en sourire — /é/</text>
     </svg>`;
 
-  // ── IMAGES CÔTÉ DROIT (remplacent les SVG de mains LSF) ──
-  // Dossier image/ — JPEG, noms majuscules, sans espace ni accent
   const LSF_IMG = {
     'A': 'image/voyelles/A.jpeg',
     'B': 'image/bilabiales/B.jpeg',
@@ -103,8 +97,6 @@ const Sons = (() => {
   };
 
   // ── ACCESSEURS ────────────────────────────────────────────
-
-  // Pour le quiz : <img> si image disponible, SVG pour spread (É)
   function getMouthSVG(pos) {
     if (pos === 'spread') return _SPREAD_SVG;
     const src = QUIZ_IMG[pos];
@@ -112,7 +104,6 @@ const Sons = (() => {
     return _SPREAD_SVG;
   }
 
-  // Pour la modale phonème : image spécifique au phonème (côté gauche)
   function getMouthImg(phoneme) {
     if (phoneme.id === 'v-ei') return _SPREAD_SVG;
     const src = PHONEME_IMG[phoneme.id];
@@ -120,7 +111,6 @@ const Sons = (() => {
     return getMouthSVG(phoneme.mouthPos);
   }
 
-  // Pour la modale phonème : image du dossier image/ (côté droit, remplace LSF)
   function getLSFSVG(letter) {
     const src = LSF_IMG[letter] || LSF_IMG['A'];
     return `<img src="${src}" alt="Son ${letter}" class="lsf-img">`;
@@ -129,7 +119,6 @@ const Sons = (() => {
   // ── ÉTAT LOCAL ────────────────────────────────────────────
   let _currentPanel = null;
   let _recSession   = null;
-  let _lastInterim  = '';   // dernier fragment capturé en temps réel
 
   // ── CONSTRUCTION DES GRILLES ─────────────────────────────
   function init() {
@@ -204,16 +193,12 @@ const Sons = (() => {
     const overlay = document.getElementById('phonemeModal');
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden', 'false');
-    Utils.startBubbleMic();
   }
 
   function closePhonemePanel() {
     _currentPanel = null;
     _stopLSFBlink();
     _stopRecording();
-    Utils.stopWaveform();
-    const canvas = document.getElementById('waveCanvas');
-    if (canvas) canvas.style.display = 'none';
     const overlay = document.getElementById('phonemeModal');
     overlay.classList.remove('open');
     overlay.setAttribute('aria-hidden', 'true');
@@ -229,17 +214,12 @@ const Sons = (() => {
       btn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Je répète !';
     }
     document.getElementById('panelMarkDoneBtn').style.display = 'none';
-    // Remettre la zone transcript à zéro
     const zone   = document.getElementById('transcriptZone');
     const textEl = document.getElementById('transcriptText');
     const label  = document.getElementById('transcriptLabel');
     if (zone)   zone.className    = 'transcript-zone transcript-zone--idle';
     if (textEl) textEl.textContent = '—';
     if (label)  label.textContent  = 'Ce que tu as dit';
-    // Arrêter le visualiseur
-    Utils.stopWaveform();
-    const canvas = document.getElementById('waveCanvas');
-    if (canvas) canvas.style.display = 'none';
   }
 
   function replaySound() {
@@ -256,30 +236,21 @@ const Sons = (() => {
   function startRepeat() {
     if (!_currentPanel || _recSession) return;
 
-    // Bouton → "Arrêter"
     const btn = document.getElementById('panelRepeatBtn');
     btn.disabled  = false;
     btn.className = 'btn-primary btn-stop';
     btn.innerHTML = '<i class="fa-solid fa-stop" aria-hidden="true"></i> Arrêter';
 
-    // Zone transcript → mode écoute
     const zone   = document.getElementById('transcriptZone');
     const textEl = document.getElementById('transcriptText');
     const label  = document.getElementById('transcriptLabel');
     if (zone)   zone.className    = 'transcript-zone transcript-zone--listening';
     if (textEl) textEl.textContent = '...';
-    if (label)  label.textContent  = 'J\'entends...';
+    if (label)  label.textContent  = 'J\'enregistre...';
 
-    // Feedback → "je t'écoute"
     const fb = document.getElementById('panelFeedback');
     fb.className = 'phoneme-feedback phoneme-feedback--listening';
-    fb.innerHTML = '<i class="fa-solid fa-ear-listen" aria-hidden="true"></i> Parle maintenant !';
-
-    _lastInterim = '';
-
-    // Visualiseur d'onde
-    const canvas = document.getElementById('waveCanvas');
-    if (canvas) { canvas.style.display = 'block'; Utils.startWaveform(canvas); }
+    fb.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i> Parle maintenant !';
 
     _recSession = Utils.recognize(
       _currentPanel.testWords,
@@ -290,69 +261,55 @@ const Sons = (() => {
   }
 
   // ── COMPARAISON TEXTE → LETTRE CIBLE ──────────────────────
-  // Règle simple : le texte capturé commence-t-il par le son cible ?
-  // Ou contient-il un des mots de test ?
   function _matchPhoneme(transcript, phoneme) {
     if (!transcript || !phoneme) return false;
     const norm = s => (s || '')
       .toLowerCase()
       .normalize('NFD')
-      .replace(/\p{Mn}/gu, '')   // retire les accents
-      .replace(/[^a-z]/g, '')    // garde seulement les lettres
+      .replace(/\p{Mn}/gu, '')
+      .replace(/[^a-z]/g, '')
       .trim();
 
     const t   = norm(transcript);
-    const sym = norm(phoneme.symbol); // ex: 'a', 'b', 'ch', 'r'
+    const sym = norm(phoneme.symbol);
 
     if (!t) return false;
-
-    // Le transcript commence par le son cible — règle principale
-    // ex: heard='ah' sym='a' → 'ah'.startsWith('a') ✓
-    // ex: heard='chat' sym='ch' → 'chat'.startsWith('ch') ✓
     if (sym && t.startsWith(sym)) return true;
 
-    // Vérifie aussi chaque mot de test (phonèmes dont le nom diffère de l'orthographe)
-    // ex: K → testWords inclut 'cou', 'cake' (prononcés "k" mais écrits avec "c")
     return phoneme.testWords.some(w => {
       const nw = norm(w);
       return nw && (t === nw || t.startsWith(nw) || t.includes(nw));
     });
   }
 
-  // Mise à jour du transcript en temps réel pendant l'écoute
+  // Mise à jour affichage pendant l'enregistrement (compte à rebours ou envoi)
   function _onInterim(text) {
-    _lastInterim = text;
     const textEl = document.getElementById('transcriptText');
     const label  = document.getElementById('transcriptLabel');
-    if (textEl) textEl.textContent = text || '...';
-    if (label)  label.textContent  = 'J\'entends...';
+    if (!textEl) return;
+    if (text === '__sending__') {
+      textEl.textContent = 'Analyse...';
+      if (label) label.textContent = 'Analyse en cours...';
+    } else if (text) {
+      textEl.textContent = 'Enregistrement ' + text;
+      if (label) label.textContent = 'J\'enregistre...';
+    }
   }
 
-  // L'enfant clique sur "Arrêter" : on arrête et on traite ce qui a été capturé
   function _stopManually() {
     if (!_recSession) return;
     const btn = document.getElementById('panelRepeatBtn');
     if (btn) btn.disabled = true;
-    try { _recSession.abort(); } catch(e) {}
-    // _lastInterim est lu dans _handleRecognitionResult via l'erreur 'aborted'
+    _recSession.abort();
   }
 
   function _stopRecording() {
     if (_recSession) { try { _recSession.abort(); } catch(e) {} _recSession = null; }
-    _lastInterim = '';
   }
 
   function _handleRecognitionResult(result) {
-    const capturedInterim = _lastInterim;
-    _recSession  = null;
-    _lastInterim = '';
+    _recSession = null;
 
-    // Arrêter visualiseur
-    Utils.stopWaveform();
-    const canvas = document.getElementById('waveCanvas');
-    if (canvas) canvas.style.display = 'none';
-
-    // Restaurer bouton
     const btn = document.getElementById('panelRepeatBtn');
     btn.disabled  = false;
     btn.className = 'btn-primary';
@@ -363,25 +320,40 @@ const Sons = (() => {
     const textEl = document.getElementById('transcriptText');
     const label  = document.getElementById('transcriptLabel');
 
-    // Cas : API non disponible (Firefox, Safari)
-    if (result.noApi) {
+    // Clé API absente
+    if (result.noKey) {
       if (zone)   zone.className    = 'transcript-zone transcript-zone--idle';
       if (textEl) textEl.textContent = '—';
       if (label)  label.textContent  = 'Ce que tu as dit';
       fb.className = 'phoneme-feedback phoneme-feedback--info';
-      fb.innerHTML = '<i class="fa-solid fa-circle-info"></i> Utilise Google Chrome pour la reconnaissance vocale.';
+      fb.innerHTML = '<i class="fa-solid fa-key"></i> Reconnaissance vocale non configurée — va dans "Mon Compte".';
       document.getElementById('panelMarkDoneBtn').style.display = 'inline-flex';
       return;
     }
 
-    // Texte entendu : résultat final OU fragment interim si stop manuel
-    const heard = (result.recognized || capturedInterim || '').trim();
+    // Erreurs diverses
+    if (result.error) {
+      const msgs = {
+        bad_key:    '<i class="fa-solid fa-key"></i> Clé d\'activation invalide.',
+        mic_denied: '<i class="fa-solid fa-microphone-slash"></i> Accès au micro refusé.',
+        network:    '<i class="fa-solid fa-wifi"></i> Erreur réseau — vérifie ta connexion.',
+        too_short:  '<i class="fa-solid fa-circle-info"></i> Enregistrement trop court — réessaie.',
+        api_error:  '<i class="fa-solid fa-circle-exclamation"></i> Erreur serveur — réessaie.'
+      };
+      if (zone)   zone.className    = 'transcript-zone transcript-zone--error';
+      if (textEl) textEl.textContent = '—';
+      if (label)  label.textContent  = 'Erreur';
+      fb.className = 'phoneme-feedback phoneme-feedback--error';
+      fb.innerHTML = msgs[result.error] || msgs.api_error;
+      document.getElementById('panelMarkDoneBtn').style.display = 'inline-flex';
+      return;
+    }
 
-    // Affichage dans la zone transcript (toujours visible)
+    const heard = (result.recognized || '').trim();
+
     if (label)  label.textContent  = 'Tu as dit';
     if (textEl) textEl.textContent  = heard || '?';
 
-    // Cas : rien capturé du tout
     if (!heard) {
       if (zone) zone.className = 'transcript-zone transcript-zone--error';
       fb.className = 'phoneme-feedback phoneme-feedback--error';
@@ -391,7 +363,6 @@ const Sons = (() => {
       return;
     }
 
-    // Comparaison texte capturé → lettre cible (règle simple)
     const success = _matchPhoneme(heard, _currentPanel);
 
     if (success) {
@@ -399,7 +370,6 @@ const Sons = (() => {
       fb.className = 'phoneme-feedback phoneme-feedback--success';
       fb.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Bravo ! C\'est bien le son !';
       Utils.fireConfetti();
-      Utils.triggerBubblesManual(5);
       _markCurrentDone();
     } else {
       if (zone) zone.className = 'transcript-zone transcript-zone--error';

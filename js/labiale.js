@@ -4,9 +4,8 @@
 
 const Labiale = (() => {
 
-  let _activeItem  = null;   // { item, type, card, micBtn } en cours
+  let _activeItem  = null;
   let _recSession  = null;
-  let _lastInterim = '';
 
   // ── CONSTRUCTION ─────────────────────────────────────────
   function init() {
@@ -98,7 +97,6 @@ const Labiale = (() => {
       _playItem(item, card);
     });
 
-    // Micro : démarre ou arrête l'enregistrement
     micBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (_recSession && _activeItem && _activeItem.card === card) {
@@ -124,7 +122,6 @@ const Labiale = (() => {
   }
 
   // ── COMPARAISON TEXTE → CIBLE ─────────────────────────────
-  // Le transcript doit commencer par le son cible ou correspondre à un mot de test
   function _matchLabiale(transcript, item) {
     if (!transcript || !item) return false;
     const norm = s => (s || '')
@@ -135,17 +132,11 @@ const Labiale = (() => {
       .trim();
 
     const t      = norm(transcript);
-    const target = norm(item.text); // ex: 'ba', 'bonjour', 'eau'
+    const target = norm(item.text);
 
     if (!t) return false;
-
-    // Le transcript commence par le son cible
-    // ex: heard='bah' target='ba' → 'bah'.startsWith('ba') ✓
-    // ex: heard='bonjour' target='bonjour' → ✓
     if (target && t.startsWith(target)) return true;
 
-    // Correspond à un mot de test (gère les orthographes alternatives)
-    // ex: 'EAU' testWords=['eau','o'] → transcript 'o' → t === 'o' ✓
     return item.testWords.some(w => {
       const nw = norm(w);
       return nw && (t === nw || t.startsWith(nw) || t.includes(nw));
@@ -154,7 +145,6 @@ const Labiale = (() => {
 
   // ── ENREGISTREMENT ────────────────────────────────────────
   function _startRecording(item, type, card, micBtn) {
-    // Arrêter toute session précédente sur une autre carte
     if (_activeItem && _activeItem.card !== card) {
       _resetCard(_activeItem.card, _activeItem.micBtn);
     }
@@ -163,10 +153,8 @@ const Labiale = (() => {
       _recSession = null;
     }
 
-    _activeItem  = { item, type, card, micBtn };
-    _lastInterim = '';
+    _activeItem = { item, type, card, micBtn };
 
-    // Bouton micro → icône "stop"
     card.classList.add('labiale-card--listening');
     if (micBtn) {
       micBtn.classList.add('labiale-card__mic--stop');
@@ -174,14 +162,7 @@ const Labiale = (() => {
       micBtn.setAttribute('aria-label', 'Arrêter l\'enregistrement');
     }
 
-    // Afficher la zone d'enregistrement
     _showRecordingZone(item, 'listening');
-
-    Utils.startBubbleMic();
-
-    // Démarrer le visualiseur d'onde
-    const waveCanvas = document.getElementById('labialeWaveCanvas');
-    if (waveCanvas) { waveCanvas.style.display = 'block'; Utils.startWaveform(waveCanvas); }
 
     _recSession = Utils.recognize(
       item.testWords,
@@ -191,43 +172,37 @@ const Labiale = (() => {
     );
   }
 
-  // Arrêt manuel par l'enfant (clic sur le bouton stop)
   function _stopManually() {
     if (!_recSession) return;
     if (_activeItem && _activeItem.micBtn) {
       _activeItem.micBtn.disabled = true;
     }
-    Utils.stopWaveform();
-    const waveCanvas = document.getElementById('labialeWaveCanvas');
-    if (waveCanvas) waveCanvas.style.display = 'none';
-    try { _recSession.abort(); } catch(e) {}
-    // _lastInterim est utilisé dans _handleResult via l'erreur 'aborted'
+    _recSession.abort();
   }
 
-  // Transcript en temps réel (pendant l'écoute)
+  // Affichage du compte à rebours ou de l'état d'envoi
   function _onInterim(text) {
-    _lastInterim = text;
     const textEl = document.getElementById('labialeTranscriptText');
     const label  = document.getElementById('labialeTranscriptLabel');
     const zone   = document.getElementById('labialeTranscriptZone');
-    if (textEl) textEl.textContent = text || '...';
-    if (label)  label.textContent  = 'J\'entends...';
-    if (zone)   zone.className     = 'transcript-zone transcript-zone--listening';
+    if (!textEl) return;
+    if (text === '__sending__') {
+      textEl.textContent = 'Analyse...';
+      if (label) label.textContent = 'Analyse en cours...';
+      if (zone)  zone.className    = 'transcript-zone transcript-zone--listening';
+    } else if (text) {
+      textEl.textContent = 'Enregistrement ' + text;
+      if (label) label.textContent = 'J\'enregistre...';
+      if (zone)  zone.className    = 'transcript-zone transcript-zone--listening';
+    }
   }
 
   // ── RÉSULTAT ──────────────────────────────────────────────
   function _handleResult(result, item, type, card, micBtn) {
-    const capturedInterim = _lastInterim;
-    _recSession  = null;
-    _activeItem  = null;
-    _lastInterim = '';
+    _recSession = null;
+    _activeItem = null;
 
     _resetCard(card, micBtn);
-
-    // Arrêter le visualiseur d'onde
-    Utils.stopWaveform();
-    const waveCanvas = document.getElementById('labialeWaveCanvas');
-    if (waveCanvas) waveCanvas.style.display = 'none';
 
     const viewedSet   = type === 'syl' ? 'syllablesViewed' : 'wordsViewed';
     const alreadyDone = State.has(viewedSet, item.id);
@@ -237,27 +212,46 @@ const Labiale = (() => {
     const textEl = document.getElementById('labialeTranscriptText');
     const label  = document.getElementById('labialeTranscriptLabel');
 
-    // API non disponible
-    if (result.noApi) {
+    // Clé API absente
+    if (result.noKey) {
       if (zone)   zone.className    = 'transcript-zone transcript-zone--idle';
       if (textEl) textEl.textContent = '—';
       if (label)  label.textContent  = 'Ce que tu as dit';
       if (fb) {
         fb.className = 'phoneme-feedback phoneme-feedback--info';
-        fb.innerHTML = '<i class="fa-solid fa-circle-info"></i> Utilise Chrome pour la reconnaissance vocale.';
+        fb.innerHTML = '<i class="fa-solid fa-key"></i> Reconnaissance vocale non configurée — va dans "Mon Compte".';
       }
       _showCardFeedback(card, true);
       if (!alreadyDone) _markDone(item, type, card, viewedSet);
       return;
     }
 
-    // Texte entendu : résultat final OU interim si stop manuel
-    const heard = (result.recognized || capturedInterim || '').trim();
+    // Erreurs diverses
+    if (result.error) {
+      const msgs = {
+        bad_key:    'Clé d\'activation invalide.',
+        mic_denied: 'Accès au micro refusé.',
+        network:    'Erreur réseau.',
+        too_short:  'Enregistrement trop court.',
+        api_error:  'Erreur serveur — réessaie.'
+      };
+      if (zone)   zone.className    = 'transcript-zone transcript-zone--error';
+      if (textEl) textEl.textContent = '—';
+      if (label)  label.textContent  = 'Erreur';
+      if (fb) {
+        fb.className = 'phoneme-feedback phoneme-feedback--error';
+        fb.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ' + (msgs[result.error] || msgs.api_error);
+      }
+      _showCardFeedback(card, false);
+      _showManualMarkBtn(card, item, type);
+      return;
+    }
+
+    const heard = (result.recognized || '').trim();
 
     if (label)  label.textContent  = 'Tu as dit';
     if (textEl) textEl.textContent  = heard || '?';
 
-    // Rien capturé
     if (!heard) {
       if (zone) zone.className = 'transcript-zone transcript-zone--error';
       if (fb) {
@@ -269,7 +263,6 @@ const Labiale = (() => {
       return;
     }
 
-    // Comparaison texte → cible (règle simple)
     const success = _matchLabiale(heard, item);
 
     if (success) {
@@ -279,7 +272,6 @@ const Labiale = (() => {
         fb.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Bravo ! C\'est bien "' + item.text + '" !';
       }
       _showCardFeedback(card, true);
-      Utils.triggerBubblesManual(4);
       Utils.fireConfetti();
       if (!alreadyDone) {
         _markDone(item, type, card, viewedSet);
@@ -312,13 +304,11 @@ const Labiale = (() => {
     if (targetEl) targetEl.textContent = item.text;
     if (tzZone)   tzZone.className     = 'transcript-zone transcript-zone--' + state;
     if (textEl)   textEl.textContent   = state === 'listening' ? '...' : '—';
-    if (label)    label.textContent    = 'J\'entends...';
+    if (label)    label.textContent    = 'J\'enregistre...';
     if (fb)       { fb.className = 'phoneme-feedback'; fb.innerHTML = ''; }
   }
 
   // ── HELPERS ───────────────────────────────────────────────
-
-  // Remet le bouton micro dans son état normal
   function _resetCard(card, micBtn) {
     card.classList.remove('labiale-card--listening');
     if (micBtn) {
@@ -376,11 +366,9 @@ const Labiale = (() => {
         Utils.addStars(5);
         Utils.logJournal('fa-microphone', 'Prononcé (manuel) : ' + item.text);
         _checkBadges(type);
-        Utils.triggerBubblesManual(3);
       }
-      // Mettre à jour la zone transcript en vert
-      const zone   = document.getElementById('labialeTranscriptZone');
-      const fb     = document.getElementById('labialeFeedback');
+      const zone = document.getElementById('labialeTranscriptZone');
+      const fb   = document.getElementById('labialeFeedback');
       if (zone) zone.className = 'transcript-zone transcript-zone--success';
       if (fb) {
         fb.className = 'phoneme-feedback phoneme-feedback--success';

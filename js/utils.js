@@ -1,6 +1,6 @@
 /* =============================================================
    UTILS.JS — Utilitaires partagés
-   Toast, confetti, bulles micro, étoiles, journal
+   Toast, confetti, étoiles, journal, TTS, reconnaissance vocale
 ============================================================= */
 
 const Utils = (() => {
@@ -88,182 +88,13 @@ const Utils = (() => {
     }
   }
 
-  // ── BULLES (MICRO AMPLITUDE) ──────────────────────────────
-  let _micCtx      = null;
-  let _micAnalyser = null;
-  let _micStream   = null;
-  let _micRAF      = null;
-  let _bubblesActive = false;
-
-  async function startBubbleMic() {
-    if (_bubblesActive) return true;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: false,
-          autoGainControl: true,
-          channelCount: 1
-        },
-        video: false
-      });
-      _micStream   = stream;
-      _micCtx      = new (window.AudioContext || window.webkitAudioContext)();
-      const source = _micCtx.createMediaStreamSource(stream);
-      _micAnalyser = _micCtx.createAnalyser();
-      _micAnalyser.fftSize = 256;
-      _micAnalyser.smoothingTimeConstant = 0.7;
-      source.connect(_micAnalyser);
-
-      const buffer = new Uint8Array(_micAnalyser.frequencyBinCount);
-      _bubblesActive = true;
-
-      function tick() {
-        if (!_bubblesActive) return;
-        _micAnalyser.getByteFrequencyData(buffer);
-        let sum = 0;
-        for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
-        const rms = Math.sqrt(sum / buffer.length);
-        if (rms > 5) _triggerBubbles(Math.min(1, rms / 40));
-        _micRAF = requestAnimationFrame(tick);
-      }
-      tick();
-      return true;
-    } catch(e) {
-      console.warn('Accès micro refusé pour les bulles :', e);
-      return false;
-    }
+  // ── CLÉ D'ACTIVATION ─────────────────────────────────────
+  function getApiKey() {
+    return localStorage.getItem('deepgram_api_key') || '';
   }
 
-  function stopBubbleMic() {
-    _bubblesActive = false;
-    if (_micRAF)    cancelAnimationFrame(_micRAF);
-    if (_micStream) _micStream.getTracks().forEach(t => t.stop());
-    if (_micCtx)    _micCtx.close().catch(() => {});
-    _micCtx = _micAnalyser = _micStream = _micRAF = null;
-  }
-
-  // ── VISUALISEUR D'ONDE (canvas temps réel) ────────────────
-  let _waveRAF    = null;
-  let _waveCanvas = null;
-
-  function startWaveform(canvas) {
-    stopWaveform();
-    if (!canvas) return;
-    _waveCanvas = canvas;
-
-    const ctx  = canvas.getContext('2d');
-    let lastW  = 0;
-    let lastH  = 0;
-
-    function draw() {
-      _waveRAF = requestAnimationFrame(draw);
-
-      // Relire les dimensions à chaque frame : gère le resize et le layout différé
-      const dpr = window.devicePixelRatio || 1;
-      const W   = canvas.offsetWidth  || 0;
-      const H   = canvas.offsetHeight || 0;
-
-      if (!W || !H) return; // canvas pas encore visible dans le DOM
-
-      // Redimensionner le buffer si nécessaire (reset du contexte canvas)
-      if (W !== lastW || H !== lastH) {
-        canvas.width  = W * dpr;
-        canvas.height = H * dpr;
-        ctx.scale(dpr, dpr);
-        lastW = W;
-        lastH = H;
-      }
-
-      ctx.clearRect(0, 0, W, H);
-
-      // Fond légèrement teinté
-      ctx.fillStyle = 'rgba(184, 92, 56, 0.06)';
-      ctx.fillRect(0, 0, W, H);
-
-      // Ligne centrale en pointillés (référence silence)
-      ctx.strokeStyle = 'rgba(184, 92, 56, 0.2)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath();
-      ctx.moveTo(0,   H / 2);
-      ctx.lineTo(W,   H / 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      if (!_micAnalyser) return;
-
-      // Données de forme d'onde (domaine temporel)
-      const data = new Uint8Array(_micAnalyser.fftSize);
-      _micAnalyser.getByteTimeDomainData(data);
-
-      // Calcul de l'amplitude RMS pour colorer l'onde
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) {
-        const v = (data[i] - 128) / 128;
-        sum += v * v;
-      }
-      const rms       = Math.sqrt(sum / data.length);
-      const intensity = Math.min(1, rms * 7);
-
-      // Couleur : terracotta calme → or vif quand fort
-      const r = Math.round(184 + (196 - 184) * intensity);
-      const g = Math.round(92  + (154 - 92)  * intensity);
-      const b = Math.round(56  + (58  - 56)  * intensity);
-      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${0.55 + intensity * 0.45})`;
-      ctx.lineWidth   = 2 + intensity * 3;
-      ctx.lineJoin    = 'round';
-      ctx.lineCap     = 'round';
-
-      // Tracé de l'onde
-      ctx.beginPath();
-      const step = W / data.length;
-      for (let i = 0; i < data.length; i++) {
-        const y = (data[i] / 128.0) * (H / 2);
-        if (i === 0) ctx.moveTo(0, y);
-        else         ctx.lineTo(i * step, y);
-      }
-      ctx.stroke();
-    }
-
-    draw();
-  }
-
-  function stopWaveform() {
-    if (_waveRAF) { cancelAnimationFrame(_waveRAF); _waveRAF = null; }
-    if (_waveCanvas) {
-      const ctx = _waveCanvas.getContext('2d');
-      ctx.clearRect(0, 0, _waveCanvas.width, _waveCanvas.height);
-      _waveCanvas = null;
-    }
-  }
-
-  function _triggerBubbles(intensity) {
-    const spans = document.querySelectorAll('.bg-bubbles span');
-    if (!spans.length) return;
-    const count = Math.round(intensity * 2) + 1;
-    Array.from(spans)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, count)
-      .forEach(span => {
-        span.classList.remove('bubble-rise');
-        void span.offsetWidth;
-        span.classList.add('bubble-rise');
-      });
-  }
-
-  function triggerBubblesManual(count = 4) {
-    const spans = document.querySelectorAll('.bg-bubbles span');
-    Array.from(spans)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, count)
-      .forEach((span, i) => {
-        setTimeout(() => {
-          span.classList.remove('bubble-rise');
-          void span.offsetWidth;
-          span.classList.add('bubble-rise');
-        }, i * 80);
-      });
+  function setApiKey(key) {
+    localStorage.setItem('deepgram_api_key', (key || '').trim());
   }
 
   // ── SPEECH SYNTHESIS (TTS) ────────────────────────────────
@@ -293,98 +124,137 @@ const Utils = (() => {
     window.speechSynthesis.speak(utt);
   }
 
-  // ── SPEECH RECOGNITION ───────────────────────────────────
-  // Retourne { recognized, success, quality, error? }
-  // onInterim(text) : appelé en temps réel à chaque fragment capturé
+  // ── RECONNAISSANCE VOCALE ────────────────────────────────
+  // Détecte le meilleur format audio supporté par le navigateur
+  function _getBestMimeType() {
+    const types = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/mp4'
+    ];
+    return types.find(t => {
+      try { return MediaRecorder.isTypeSupported(t); } catch(e) { return false; }
+    }) || 'audio/webm';
+  }
+
+  // Retourne un handle { abort() } synchroniquement.
+  // L'enregistrement démarre dès que getUserMedia répond.
+  // onInterim(text) est appelé avec le compte à rebours puis '__sending__'.
   function recognize(expectedWords, timeoutMs, callback, onInterim) {
-    const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SRClass) {
-      callback({ recognized: '', success: true, quality: 0.5, noApi: true });
-      return null;
+    const apiKey = getApiKey();
+
+    if (!apiKey) {
+      setTimeout(() => callback({ recognized: '', success: false, quality: 0, noKey: true }), 0);
+      return { abort() {} };
     }
 
-    const rec = new SRClass();
-    rec.lang            = 'fr-FR';
-    rec.interimResults  = true;  // résultats en temps réel pour l'affichage et la sensibilité
-    rec.maxAlternatives = 8;
-    rec.continuous      = false;
+    const handle = { _recorder: null, _stream: null, _timers: [] };
+    const maxMs  = timeoutMs || 7000;
+    const chunks = [];
+    const mime   = _getBestMimeType();
+    const ctType = mime.split(';')[0];  // sans paramètre codec pour le Content-Type
 
-    // Focaliser la reconnaissance sur les mots attendus (améliore la précision)
-    try {
-      const GList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
-      if (GList) {
-        const grammar = '#JSGF V1.0; grammar mots; public <mot> = ' + expectedWords.join(' | ') + ' ;';
-        const list = new GList();
-        list.addFromString(grammar, 1);
-        rec.grammars = list;
+    handle.abort = function() {
+      this._timers.forEach(id => { clearTimeout(id); clearInterval(id); });
+      this._timers = [];
+      if (this._recorder && this._recorder.state === 'recording') {
+        this._recorder.stop();
+      } else if (this._stream) {
+        this._stream.getTracks().forEach(t => t.stop());
       }
-    } catch(e) {}
+    };
 
-    let done  = false;
-    let timer = null;
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then(stream => {
+        handle._stream = stream;
 
-    function finish(result) {
-      if (done) return;
-      done = true;
-      if (timer) clearTimeout(timer);
-      try { rec.abort(); } catch(e) {}
-      callback(result);
-    }
-
-    rec.onresult = (e) => {
-      let interimText = '';
-      let finalText   = '';
-      const finalAlts = [];
-
-      for (let i = 0; i < e.results.length; i++) {
-        const res = e.results[i];
-        if (res.isFinal) {
-          finalText += res[0].transcript;
-          for (let j = 0; j < res.length; j++) {
-            finalAlts.push(res[j].transcript.toLowerCase().trim());
-          }
-        } else {
-          interimText += res[0].transcript;
+        let recorder;
+        try {
+          recorder = new MediaRecorder(stream, { mimeType: mime });
+        } catch(e) {
+          recorder = new MediaRecorder(stream);
         }
-      }
+        handle._recorder = recorder;
 
-      // Retour visuel en temps réel
-      const liveText = (interimText || finalText).trim();
-      if (onInterim && liveText) onInterim(liveText);
+        recorder.ondataavailable = e => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
 
-      // Traiter uniquement le résultat final
-      if (finalText) {
-        const best = finalText.toLowerCase().trim();
-        if (!finalAlts.length) finalAlts.push(best);
-        const quality = _scoreRecognition(best, finalAlts, expectedWords);
-        finish({ recognized: finalText.trim(), success: quality > 0.3, quality });
-      }
-    };
+        recorder.onstop = async () => {
+          handle._timers.forEach(id => { clearTimeout(id); clearInterval(id); });
+          handle._timers = [];
+          stream.getTracks().forEach(t => t.stop());
 
-    rec.onerror = (e) => {
-      if (e.error === 'no-speech' || e.error === 'aborted') {
-        finish({ recognized: '', success: false, quality: 0, error: e.error });
-      } else {
-        finish({ recognized: '', success: true, quality: 0.4, error: e.error });
-      }
-    };
+          if (onInterim) onInterim('__sending__');
 
-    rec.onend = () => finish({ recognized: '', success: false, quality: 0 });
+          const audioBlob = new Blob(chunks, { type: ctType });
 
-    timer = setTimeout(
-      () => finish({ recognized: '', success: false, quality: 0, error: 'timeout' }),
-      timeoutMs || 7000
-    );
+          if (audioBlob.size < 500) {
+            callback({ recognized: '', success: false, quality: 0, error: 'too_short' });
+            return;
+          }
 
-    rec.start();
-    return rec;
+          try {
+            const res = await fetch(
+              'https://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=false',
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': 'Token ' + apiKey,
+                  'Content-Type': ctType
+                },
+                body: audioBlob
+              }
+            );
+
+            if (!res.ok) {
+              callback({
+                recognized: '', success: false, quality: 0,
+                error: res.status === 401 ? 'bad_key' : 'api_error'
+              });
+              return;
+            }
+
+            const data = await res.json();
+            const transcript = (
+              data.results?.channels?.[0]?.alternatives?.[0]?.transcript || ''
+            ).trim();
+
+            const quality = _scoreRecognition(transcript, [transcript], expectedWords);
+            callback({ recognized: transcript, success: quality > 0.3, quality });
+
+          } catch(e) {
+            callback({ recognized: '', success: false, quality: 0, error: 'network' });
+          }
+        };
+
+        recorder.start(250);
+
+        // Compte à rebours affiché dans la zone transcript
+        let remaining = Math.round(maxMs / 1000);
+        if (onInterim) onInterim(remaining + 's');
+        const tick = setInterval(() => {
+          remaining--;
+          if (remaining > 0 && onInterim) onInterim(remaining + 's');
+        }, 1000);
+        handle._timers.push(tick);
+
+        // Arrêt automatique après maxMs
+        const autoStop = setTimeout(() => {
+          if (recorder.state === 'recording') recorder.stop();
+        }, maxMs);
+        handle._timers.push(autoStop);
+      })
+      .catch(() => {
+        callback({ recognized: '', success: false, quality: 0, error: 'mic_denied' });
+      });
+
+    return handle;
   }
 
   // ── SCORING DE RECONNAISSANCE ─────────────────────────────
 
-  // Distance de Levenshtein : nombre minimal de modifications (insertion,
-  // suppression, substitution) pour passer d'une chaîne à l'autre.
-  // Permet d'accepter les sons phonétiquement proches : "ba"/"va", "chat"/"sha"…
   function _levenshtein(a, b) {
     if (a === b)      return 0;
     if (!a.length)    return b.length;
@@ -403,7 +273,6 @@ const Utils = (() => {
   }
 
   function _scoreRecognition(best, alts, expectedWords) {
-    // Normalise : minuscules, sans accents, sans ponctuation
     const normalize = s => s.toLowerCase()
       .normalize('NFD')
       .replace(/\p{Mn}/gu, '')
@@ -413,34 +282,19 @@ const Utils = (() => {
     const normBest     = normalize(best);
     const normExpected = expectedWords.map(normalize);
     const normAlts     = alts.map(normalize);
+    const allT         = [normBest, ...normAlts].filter(Boolean);
 
-    // Toutes les transcriptions candidates (meilleure + toutes les alternatives)
-    const allT = [normBest, ...normAlts].filter(Boolean);
-
-    // Niveau 1 — correspondance exacte sur n'importe quelle alternative
     if (normExpected.some(w => allT.some(t => t === w))) return 1.0;
-
-    // Niveau 2 — la transcription contient le mot attendu
-    //   ex : attendu "ba", entendu "bah" ou "basse" → accepté
     if (normExpected.some(w => allT.some(t => t.includes(w)))) return 0.85;
-
-    // Niveau 3 — pour les sons très courts (≤ 3 chars) : le mot attendu
-    //   contient la transcription. ex : attendu "ba", entendu "b" → accepté
     if (normExpected.some(w =>
       w.length <= 3 && allT.some(t => t.length > 0 && w.includes(t))
     )) return 0.75;
-
-    // Niveau 4 — distance de Levenshtein : tolérance phonétique
-    //   ex : "ba"/"va" → dist 1 ✓ | "chat"/"sha" → dist 2 ✓
-    //   Appliqué uniquement aux mots courts (≤ 6 chars) pour éviter les faux positifs
     for (const w of normExpected) {
       if (w.length <= 6) {
         const maxDist = w.length <= 3 ? 1 : 2;
         if (allT.some(t => _levenshtein(t, w) <= maxDist)) return 0.65;
       }
     }
-
-    // Aucune correspondance
     return 0.15;
   }
 
@@ -451,13 +305,10 @@ const Utils = (() => {
     earnBadge,
     logJournal,
     fireConfetti,
-    startBubbleMic,
-    stopBubbleMic,
-    triggerBubblesManual,
+    getApiKey,
+    setApiKey,
     speak,
-    recognize,
-    startWaveform,
-    stopWaveform
+    recognize
   };
 
 })();

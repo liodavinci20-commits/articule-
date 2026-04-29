@@ -304,6 +304,57 @@ header p {
 .module-banner--quiz       { background: linear-gradient(135deg, #C49A3A, #9A7420); }
 .module-banner--recompenses{ background: linear-gradient(135deg, #6B4E8A, #4A2E6A); }
 
+/* ── BANDEROLE CLÉ API ───────────────────────────────────── */
+#apiKeyBanner {
+  background: #FFF8EC;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #8A6A10;
+}
+
+#apiKeyBanner[style*="flex"] { display: flex; }
+
+.banner-link-btn {
+  background: none;
+  border: none;
+  color: var(--terra);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.banner-link-btn:hover { color: #A04E2E; }
+
+/* ── CHAMP SAISIE CLÉ API ────────────────────────────────── */
+.api-key-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: var(--surface-2);
+  margin: 12px 0 4px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.api-key-input:focus {
+  border-color: var(--slate);
+  background: var(--surface);
+}
+
 /* ── BANDEROLE NAVIGATEUR ────────────────────────────────── */
 #browserBanner {
   display: none;

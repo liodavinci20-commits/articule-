@@ -63,11 +63,6 @@
       <div class="transcript-zone__text" id="transcriptText">—</div>
     </div>
 
-    <!-- Visualiseur de son (onde en temps réel pendant l'enregistrement) -->
-    <canvas id="waveCanvas" height="56"
-            style="display:none; width:100%; border-radius:8px; margin:6px 0 4px;"
-            aria-hidden="true"></canvas>
-
     <!-- Feedback reconnaissance -->
     <div class="phoneme-feedback" id="panelFeedback" aria-live="polite"></div>
 
@@ -110,6 +105,14 @@
     <h1>Articule +</h1>
     <p id="appGreetingText">J'apprends à articuler en m'amusant !</p>
   </header>
+
+  <!-- BANNIÈRE CLÉ MANQUANTE -->
+  <div id="apiKeyBanner" role="alert" style="display:none;">
+    <i class="fa-solid fa-key" aria-hidden="true"></i>
+    <span>Reconnaissance vocale non configurée.
+      <button class="banner-link-btn" onclick="App.showApiKeyModal()">Configurer maintenant</button>
+    </span>
+  </div>
 
   <!-- BANNIÈRE NAVIGATEUR -->
   <div id="browserBanner" role="alert">
@@ -272,9 +275,6 @@
       <div class="labiale-recording-zone__target">
         Tu dois dire : <strong id="labialeTargetWord">—</strong>
       </div>
-      <canvas id="labialeWaveCanvas" height="56"
-              style="display:none; width:100%; border-radius:8px; margin:6px 0 2px;"
-              aria-hidden="true"></canvas>
       <div id="labialeTranscriptZone" class="transcript-zone transcript-zone--idle">
         <div class="transcript-zone__label" id="labialeTranscriptLabel">Ce que tu as dit</div>
         <div class="transcript-zone__text" id="labialeTranscriptText">—</div>
@@ -391,6 +391,9 @@
         <i class="fa-solid fa-circle-user" aria-hidden="true"></i> Mon Compte
       </div>
       <div class="account-actions">
+        <button class="btn-secondary w-full-btn" onclick="App.showApiKeyModal()">
+          <i class="fa-solid fa-microphone" aria-hidden="true"></i> Reconnaissance vocale
+        </button>
         <button class="btn-secondary w-full-btn" onclick="App.showResetConfirm()">
           <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Réinitialiser la session
         </button>
@@ -403,6 +406,26 @@
   </div>
 
 </div><!-- end wrapper -->
+
+<!-- MODALE RECONNAISSANCE VOCALE -->
+<div class="confirm-overlay" id="apiKeyModal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="confirm-box">
+    <div class="confirm-icon" style="color:var(--slate);">
+      <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+    </div>
+    <h3 class="confirm-title">Reconnaissance vocale</h3>
+    <p class="confirm-msg">Colle ta clé d'activation pour activer la reconnaissance vocale. Elle est stockée uniquement dans ton navigateur.</p>
+    <input type="text" id="apiKeyInput" class="api-key-input"
+           placeholder="Colle ta clé d'activation ici..."
+           autocomplete="off" spellcheck="false" />
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="App.hideApiKeyModal()">Annuler</button>
+      <button class="btn-primary" onclick="App.saveApiKey()">
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Enregistrer
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- MODALE CONFIRMATION RESET -->
 <div class="confirm-overlay" id="resetConfirmModal" role="dialog" aria-modal="true" aria-hidden="true">
