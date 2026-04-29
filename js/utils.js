@@ -165,7 +165,15 @@ const Utils = (() => {
       }
     };
 
-    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation:  false,
+          noiseSuppression:  false,
+          autoGainControl:   true,
+          channelCount:      1
+        },
+        video: false
+      })
       .then(stream => {
         handle._stream = stream;
 
@@ -190,7 +198,7 @@ const Utils = (() => {
 
           const audioBlob = new Blob(chunks, { type: ctType });
 
-          if (audioBlob.size < 500) {
+          if (audioBlob.size < 100) {
             callback({ recognized: '', success: false, quality: 0, error: 'too_short' });
             return;
           }
