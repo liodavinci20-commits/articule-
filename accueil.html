@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articule + – Bienvenue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/accueil.css" />
+</head>
+<body class="accueil-body">
+
+<!-- Bulles de fond -->
+<div class="bg-bubbles" aria-hidden="true">
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span>
+</div>
+
+<!-- ============================================================
+     NAVBAR
+============================================================= -->
+<nav class="accueil-nav">
+  <div class="accueil-nav__brand">
+    <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+    Articule +
+  </div>
+  <a href="login.html" class="accueil-nav__login" aria-label="Se connecter ou créer un compte">
+    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+    Connexion / Créer un compte
+  </a>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================= -->
+<section class="accueil-hero">
+
+  <!-- Gauche : logo + titre + slogan -->
+  <div class="accueil-hero__left">
+    <div class="accueil-logo-wrap">
+      <i class="fa-solid fa-comment-dots accueil-logo-icon" aria-hidden="true"></i>
+    </div>
+    <h1 class="accueil-title">Articule +</h1>
+    <p class="accueil-slogan">Mieux communiquer, tout en s'amusant !</p>
+    <a href="login.html" class="btn-accueil-cta">
+      <i class="fa-solid fa-play" aria-hidden="true"></i>
+      Commencer maintenant
+    </a>
+  </div>
+
+  <!-- Droite : message de bienvenue + image -->
+  <div class="accueil-hero__right">
+    <div class="accueil-welcome-card">
+      <i class="fa-solid fa-hands-clapping accueil-welcome-icon" aria-hidden="true"></i>
+      <p class="accueil-welcome-text">
+        Bienvenue sur le site d'apprentissage de l'articulation pour tous !
+      </p>
+      <!-- Remplace ce placeholder par une vraie photo d'enfants -->
+      <img
+        src="https://placehold.co/400x200/B85C38/ffffff?text=Photo+enfants"
+        alt="Enfants apprenant l'articulation"
+        class="accueil-hero-img"
+      />
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================
+     MODULES
+============================================================= -->
+<section class="accueil-modules">
+  <h2 class="accueil-modules__title">
+    <i class="fa-solid fa-star" aria-hidden="true"></i> Nos modules
+  </h2>
+
+  <div class="accueil-modules__grid">
+
+    <!-- Sons & Phonèmes -->
+    <div class="accueil-module-card">
+      <!-- Remplace ce placeholder par une photo d'enfant -->
+      <img
+        src="https://placehold.co/360x170/B85C38/ffffff?text=Sons+%26+Phonèmes"
+        alt="Enfant pratiquant les sons et phonèmes"
+        class="accueil-module-img"
+      />
+      <div class="accueil-module-body">
+        <div class="accueil-module-icon" style="background:var(--terra)">
+          <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+        </div>
+        <h3>Sons &amp; Phonèmes</h3>
+        <p>Écoute et répète les voyelles et consonnes avec correction vocale en temps réel.</p>
+      </div>
+    </div>
+
+    <!-- Respiration -->
+    <div class="accueil-module-card">
+      <img
+        src="https://placehold.co/360x170/5C8A6B/ffffff?text=Respiration"
+        alt="Enfant pratiquant la respiration"
+        class="accueil-module-img"
+      />
+      <div class="accueil-module-body">
+        <div class="accueil-module-icon" style="background:var(--sage)">
+          <i class="fa-solid fa-wind" aria-hidden="true"></i>
+        </div>
+        <h3>Respiration</h3>
+        <p>Des exercices de souffle guidés pour mieux contrôler ta respiration.</p>
+      </div>
+    </div>
+
+    <!-- Lecture Labiale -->
+    <div class="accueil-module-card">
+      <img
+        src="https://placehold.co/360x170/4A7BA8/ffffff?text=Lecture+Labiale"
+        alt="Enfant pratiquant la lecture labiale"
+        class="accueil-module-img"
+      />
+      <div class="accueil-module-body">
+        <div class="accueil-module-icon" style="background:var(--slate)">
+          <i class="fa-solid fa-eye" aria-hidden="true"></i>
+        </div>
+        <h3>Lecture Labiale</h3>
+        <p>Entraîne-toi sur des syllabes et des mots du quotidien.</p>
+      </div>
+    </div>
+
+    <!-- Récompenses -->
+    <div class="accueil-module-card">
+      <img
+        src="https://placehold.co/360x170/C49A3A/ffffff?text=Récompenses"
+        alt="Enfant fier de ses récompenses"
+        class="accueil-module-img"
+      />
+      <div class="accueil-module-body">
+        <div class="accueil-module-icon" style="background:var(--gold)">
+          <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+        </div>
+        <h3>Récompenses</h3>
+        <p>Gagne des étoiles et débloque des badges au fil de ta progression !</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================= -->
+<footer class="accueil-footer">
+  <p>Prêt(e) à commencer ?</p>
+  <a href="login.html" class="btn-accueil-cta">
+    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+    Créer un compte gratuit
+  </a>
+  <p class="accueil-footer__sub">
+    Déjà inscrit(e) ? <a href="login.html">Se connecter</a>
+  </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+  window.addEventListener('load', async () => {
+    if (localStorage.getItem('articule_active_user')) {
+      window.location.href = 'index.html';
+      return;
+    }
+    const { data: { session } } = await DB.auth.getSession();
+    if (session) window.location.href = 'index.html';
+  });
+</script>
+
+</body>
+</html>

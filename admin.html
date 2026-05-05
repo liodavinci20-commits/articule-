@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articule + – Administration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-body">
+
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
+
+<!-- BANNIÈRE ERREUR -->
+<div id="adminError"></div>
+
+<!-- ============================================================
+     NAVBAR
+============================================================= -->
+<nav class="admin-nav">
+  <div class="admin-nav__brand">
+    <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+    Articule +
+    <span class="admin-nav__badge">Admin</span>
+  </div>
+  <div class="admin-nav__right">
+    <span><i class="fa-solid fa-circle-user" aria-hidden="true"></i> <span id="adminEmail">—</span></span>
+    <button class="admin-nav__logout" onclick="adminLogout()">
+      <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Déconnexion
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     CONTENU PRINCIPAL
+============================================================= -->
+<div class="admin-wrapper" id="adminWrapper" style="opacity:0;">
+
+  <h1 class="admin-page-title">
+    <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+    Tableau de bord
+  </h1>
+
+  <!-- STATS -->
+  <div class="admin-stats">
+
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon admin-stat-icon--users">
+        <i class="fa-solid fa-users" aria-hidden="true"></i>
+      </div>
+      <div>
+        <div class="admin-stat-label">Utilisateurs inscrits</div>
+        <div class="admin-stat-value" id="statTotal">—</div>
+      </div>
+    </div>
+
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon admin-stat-icon--stars">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+      </div>
+      <div>
+        <div class="admin-stat-label">Étoiles totales gagnées</div>
+        <div class="admin-stat-value" id="statStars">—</div>
+      </div>
+    </div>
+
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon admin-stat-icon--badges">
+        <i class="fa-solid fa-award" aria-hidden="true"></i>
+      </div>
+      <div>
+        <div class="admin-stat-label">Badges débloqués</div>
+        <div class="admin-stat-value" id="statBadges">—</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLEAU UTILISATEURS -->
+  <div class="admin-section">
+    <div class="admin-section__header">
+      <h2 class="admin-section__title">
+        <i class="fa-solid fa-list" aria-hidden="true"></i>
+        Utilisateurs inscrits
+      </h2>
+      <button class="admin-refresh-btn" onclick="loadDashboard()">
+        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Actualiser
+      </button>
+    </div>
+
+    <!-- Spinner de chargement -->
+    <div id="tableSpinner">
+      <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+      Chargement...
+    </div>
+
+    <!-- Tableau -->
+    <table id="usersTable" aria-label="Liste des utilisateurs">
+      <thead>
+        <tr>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Inscription</th>
+          <th>Étoiles</th>
+          <th>Badges</th>
+          <th>Progression</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- LISTE DES ADMINISTRATEURS ACTUELS -->
+  <div class="admin-section" style="margin-top:24px;">
+    <div class="admin-section__header">
+      <h2 class="admin-section__title">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        Administrateurs actuels
+      </h2>
+    </div>
+    <div style="padding:24px;">
+      <div id="adminsList"></div>
+    </div>
+  </div>
+
+</div><!-- end adminWrapper -->
+
+<!-- ============================================================
+     MODALE CONFIRMATION SUPPRESSION
+============================================================= -->
+<div class="admin-modal-overlay" id="deleteModal" role="dialog" aria-modal="true">
+  <div class="admin-modal-box">
+    <div class="admin-modal-icon">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    </div>
+    <h3>Supprimer cet utilisateur ?</h3>
+    <p>
+      Tu es sur le point de supprimer le compte de
+      <strong id="deleteTargetName">—</strong>.
+      Toute sa progression sera perdue de façon irréversible.
+    </p>
+    <div class="admin-modal-actions">
+      <button class="admin-modal-cancel" onclick="closeDeleteModal()">Annuler</button>
+      <button class="admin-modal-confirm" id="confirmDeleteBtn" onclick="executeDelete()">
+        <i class="fa-solid fa-trash" aria-hidden="true"></i> Supprimer
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>

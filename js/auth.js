@@ -12,12 +12,15 @@ const Auth = {
   init() {
     this.vLogin       = document.getElementById('viewLogin');
     this.vRegister    = document.getElementById('viewRegister');
+    this.vAdmin       = document.getElementById('viewAdmin');
     this.loginForm    = document.getElementById('loginForm');
     this.registerForm = document.getElementById('registerForm');
+    this.adminForm    = document.getElementById('adminLoginForm');
     this.alertBox     = document.getElementById('alertBox');
 
     if (this.loginForm)    this.loginForm.addEventListener('submit',    e => this.handleLogin(e));
     if (this.registerForm) this.registerForm.addEventListener('submit', e => this.handleRegister(e));
+    if (this.adminForm)    this.adminForm.addEventListener('submit',    e => this.handleAdminLogin(e));
   },
 
   // ── Affichage d'erreur ────────────────────────────────────
@@ -48,13 +51,22 @@ const Auth = {
 
   showLogin() {
     this.vRegister.style.display = 'none';
+    this.vAdmin.style.display    = 'none';
     this.vLogin.style.display    = 'block';
     if (this.alertBox) this.alertBox.style.display = 'none';
   },
 
   showRegister() {
     this.vLogin.style.display    = 'none';
+    this.vAdmin.style.display    = 'none';
     this.vRegister.style.display = 'block';
+    if (this.alertBox) this.alertBox.style.display = 'none';
+  },
+
+  showAdminLogin() {
+    this.vLogin.style.display    = 'none';
+    this.vRegister.style.display = 'none';
+    this.vAdmin.style.display    = 'block';
     if (this.alertBox) this.alertBox.style.display = 'none';
   },
 
@@ -125,6 +137,40 @@ const Auth = {
     this.showSuccess('Compte créé avec succès !');
     sessionStorage.setItem('welcome_msg', 'inscription');
     setTimeout(() => { window.location.href = 'index.html'; }, 900);
+  },
+
+  // ── Connexion Admin ───────────────────────────────────────
+  async handleAdminLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('adminUser').value.trim();
+    const pass  = document.getElementById('adminPass').value;
+
+    if (!email || !pass) return this.showError('Remplis tous les champs.');
+
+    this._setLoading(true);
+    const { data, error } = await DB.auth.signInWithPassword({ email, password: pass });
+    this._setLoading(false);
+
+    if (error) {
+      return this.showError('Email ou mot de passe incorrect.');
+    }
+
+    const uid = data?.user?.id;
+    if (!uid) return this.showError('Erreur de connexion, réessaie.');
+
+    const { data: adminRow } = await DB
+      .from('admins')
+      .select('user_id')
+      .eq('user_id', uid)
+      .single();
+
+    if (!adminRow) {
+      await DB.auth.signOut();
+      return this.showError('Accès refusé. Ce compte n\'a pas les droits administrateur.');
+    }
+
+    this.showSuccess('Bienvenue, administrateur !');
+    setTimeout(() => { window.location.href = 'admin.html'; }, 900);
   },
 
   // ── Mode invité (pas de compte) ───────────────────────────

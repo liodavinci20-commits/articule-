@@ -387,6 +387,49 @@
   color: var(--text);
 }
 
+/* ── BOUTON ESPACE ADMIN ────────────────────────────────── */
+.btn-admin-access {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  background: #F3F0F8;
+  color: var(--plum);
+  border: 1.5px solid #C8BAE0;
+  border-radius: var(--radius-pill);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-admin-access:hover {
+  background: var(--plum);
+  color: white;
+  border-color: var(--plum);
+  transform: translateY(-1px);
+}
+
+/* ── ICÔNE ADMIN (violet) ────────────────────────────────── */
+.form-header__icon--admin {
+  background: linear-gradient(135deg, var(--plum), #4A2E6A);
+  box-shadow: 0 6px 18px rgba(107,78,138,0.28);
+}
+
+/* ── BOUTON SUBMIT ADMIN ─────────────────────────────────── */
+.btn-submit--admin {
+  background: var(--plum);
+  box-shadow: 0 4px 16px rgba(107,78,138,0.28);
+}
+
+.btn-submit--admin:hover {
+  background: #4A2E6A;
+  box-shadow: 0 6px 22px rgba(107,78,138,0.35);
+}
+
 /* ── BOUTON RETOUR ──────────────────────────────────────── */
 .btn-back {
   display: flex;

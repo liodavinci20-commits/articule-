@@ -145,6 +145,12 @@ const Labiale = (() => {
 
   // ── ENREGISTREMENT ────────────────────────────────────────
   function _startRecording(item, type, card, micBtn) {
+    if (localStorage.getItem('articule_active_user') === 'guest') {
+      localStorage.removeItem('articule_active_user');
+      window.location.href = 'login.html';
+      return;
+    }
+
     if (_activeItem && _activeItem.card !== card) {
       _resetCard(_activeItem.card, _activeItem.micBtn);
     }

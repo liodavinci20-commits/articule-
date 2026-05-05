@@ -101,6 +101,44 @@
       <button type="button" class="btn-guest" onclick="Auth.loginAsGuest()">
         <i class="fa-solid fa-ghost"></i> Continuer en invité
       </button>
+
+      <div class="auth-divider"><span>ou</span></div>
+
+      <button type="button" class="btn-admin-access" onclick="Auth.showAdminLogin()">
+        <i class="fa-solid fa-shield-halved"></i> Espace administrateur
+      </button>
+    </div>
+
+    <!-- ══ VUE : CONNEXION ADMIN ════════════════════════ -->
+    <div id="viewAdmin" style="display:none;">
+      <div class="form-header">
+        <div class="form-header__icon form-header__icon--admin">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2>Espace Admin</h2>
+        <p>Connexion réservée aux administrateurs</p>
+      </div>
+
+      <form id="adminLoginForm" class="auth-form" novalidate>
+        <div class="input-group">
+          <i class="fa-solid fa-user input-group__icon"></i>
+          <input type="email" id="adminUser" placeholder="Adresse email admin" required autocomplete="email" />
+        </div>
+        <div class="input-group">
+          <i class="fa-solid fa-lock input-group__icon"></i>
+          <input type="password" id="adminPass" placeholder="Mot de passe" required autocomplete="current-password" />
+          <button type="button" class="toggle-pass" onclick="Auth.togglePass('adminPass', this)" tabindex="-1" aria-label="Afficher le mot de passe">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <button type="submit" class="btn-submit btn-submit--admin">
+          Accéder au tableau de bord <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <button type="button" class="btn-back" onclick="Auth.showLogin()">
+        <i class="fa-solid fa-arrow-left"></i> Retour à la connexion
+      </button>
     </div>
 
     <!-- ══ VUE : INSCRIPTION ════════════════════════════ -->

@@ -236,6 +236,13 @@ const Sons = (() => {
   function startRepeat() {
     if (!_currentPanel || _recSession) return;
 
+    if (localStorage.getItem('articule_active_user') === 'guest') {
+      localStorage.removeItem('articule_active_user');
+      Sons.closePhonemePanel();
+      window.location.href = 'login.html';
+      return;
+    }
+
     const btn = document.getElementById('panelRepeatBtn');
     btn.disabled  = false;
     btn.className = 'btn-primary btn-stop';
