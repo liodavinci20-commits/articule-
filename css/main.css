@@ -67,6 +67,16 @@ body {
   line-height: 1.6;
 }
 
+.app-body {
+  background-image:
+    linear-gradient(rgba(244, 241, 236, 0.60), rgba(244, 241, 236, 0.60)),
+    url("../fond a l'interieur du projet.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
 button, input, select, textarea {
   font-family: inherit;
   font-size: inherit;

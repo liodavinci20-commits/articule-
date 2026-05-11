@@ -56,6 +56,16 @@
         </div>
       </div>
     </div>
+
+    <!-- BOUTON DÉCLENCHEUR -->
+    <div class="login-connect-trigger">
+      <p>Prêt(e) à commencer ?</p>
+      <button class="btn-connect-trigger" onclick="revealForm()">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        Se connecter
+      </button>
+    </div>
+
   </div>
 
   <!-- ── PANNEAU DROIT (formulaire) ───────────────────── -->
@@ -201,6 +211,10 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script>
+  function revealForm() {
+    document.querySelector('.login-page-container').classList.add('revealed');
+  }
+
   window.onload = () => {
     if (localStorage.getItem('articule_active_user')) {
       window.location.href = 'index.html';

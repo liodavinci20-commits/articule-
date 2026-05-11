@@ -9,7 +9,19 @@
   justify-content: center;
   min-height: 100vh;
   padding: 24px 16px;
-  background: var(--bg);
+  background-image: url('../image fond.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.login-body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 248, 244, 0.55);
+  z-index: 0;
 }
 
 .login-page-container {
@@ -20,14 +32,21 @@
   max-width: 960px;
   width: 100%;
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* ── PANNEAU GAUCHE (hero) ───────────────────────────────── */
 .login-hero {
   flex: 1;
   text-align: center;
-  animation: fadeUp 0.55s ease both;
+  /* Décalé à droite pour paraître centré (card invisible occupe 400px + 60px gap) */
+  transform: translateX(230px);
+  transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Quand le formulaire est révélé : hero glisse vers la gauche */
+.login-page-container.revealed .login-hero {
+  transform: translateX(0);
 }
 
 .login-hero__logo {
@@ -112,6 +131,58 @@
   font-weight: 600;
 }
 
+/* ── BOUTON DÉCLENCHEUR ─────────────────────────────────── */
+.login-connect-trigger {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-height: 120px;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.25s ease, max-height 0.4s ease 0.15s, margin-top 0.4s ease 0.15s;
+}
+
+.login-connect-trigger p {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.btn-connect-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: var(--terra);
+  color: white;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 4px 18px rgba(184,92,56,0.30);
+}
+
+.btn-connect-trigger:hover {
+  background: #A04E2E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(184,92,56,0.38);
+}
+
+.btn-connect-trigger:active { transform: translateY(0); }
+
+/* Cache le déclencheur quand le form est ouvert */
+.login-page-container.revealed .login-connect-trigger {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  pointer-events: none;
+}
+
 /* ── PANNEAU DROIT (carte formulaire) ───────────────────── */
 .login-card {
   flex: 0 0 400px;
@@ -123,7 +194,11 @@
   border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
-  animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* Caché initialement */
+  opacity: 0;
+  transform: translateX(60px);
+  pointer-events: none;
+  transition: opacity 0.45s ease 0.25s, transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
 }
 
 .login-card::before {
@@ -132,6 +207,13 @@
   top: 0; left: 0; right: 0;
   height: 5px;
   background: linear-gradient(90deg, var(--terra), var(--gold), var(--sage));
+}
+
+/* Révélation de la carte */
+.login-page-container.revealed .login-card {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 /* ── EN-TÊTE DE FORMULAIRE ──────────────────────────────── */
@@ -481,8 +563,31 @@
     align-items: stretch;
   }
 
-  .login-hero { order: 1; }
-  .login-card { order: 2; flex: none; width: 100%; max-width: 420px; margin: 0 auto; }
+  /* Pas de décalage horizontal sur mobile */
+  .login-hero {
+    order: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .login-page-container.revealed .login-hero {
+    transform: none;
+  }
+
+  .login-card {
+    order: 2;
+    flex: none;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    /* Sur mobile : glissement depuis le bas */
+    transform: translateY(40px);
+    transition: opacity 0.4s ease 0.1s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s;
+  }
+
+  .login-page-container.revealed .login-card {
+    transform: translateY(0);
+  }
 
   .login-features { flex-direction: row; flex-wrap: wrap; justify-content: center; }
   .login-feature  { flex: 1; min-width: 160px; }
